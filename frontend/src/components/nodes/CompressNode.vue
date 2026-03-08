@@ -5,7 +5,10 @@
       <span>图片压缩</span>
     </div>
     <div class="node-content">
-      <div class="info-item">
+      <div class="level-badge" :class="levelClass">
+        {{ levelName }}
+      </div>
+      <div class="info-item" v-if="data.showAdvanced">
         <span class="label">质量：</span>
         <span class="value">{{ data.quality }}%</span>
       </div>
@@ -23,13 +26,29 @@
 /**
  * 图片压缩节点组件
  */
+import { computed } from 'vue'
 import { Handle, Position } from '@vue-flow/core'
 
-defineProps({
+const props = defineProps({
   data: {
     type: Object,
     default: () => ({})
   }
+})
+
+const levelNames = {
+  light: '轻度',
+  normal: '普通',
+  strong: '强力',
+  extreme: '极强'
+}
+
+const levelName = computed(() => {
+  return levelNames[props.data.compressLevel] || '普通'
+})
+
+const levelClass = computed(() => {
+  return `level-${props.data.compressLevel || 'normal'}`
 })
 </script>
 
@@ -64,6 +83,35 @@ defineProps({
 
 .node-content {
   padding: 12px 14px;
+}
+
+.level-badge {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.level-light {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  color: #065f46;
+}
+
+.level-normal {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  color: #1e40af;
+}
+
+.level-strong {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #92400e;
+}
+
+.level-extreme {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  color: #991b1b;
 }
 
 .info-item {

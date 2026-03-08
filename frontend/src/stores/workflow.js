@@ -393,6 +393,8 @@ function cleanupExecution() {
           return []
         }
         const compressedImages = []
+        const compressLevel = data.compressLevel || 'normal'
+        addLog(`压缩等级: ${compressLevel}`, 'info')
         for (const file of inputData) {
           checkAborted()
           try {
@@ -400,7 +402,7 @@ function cleanupExecution() {
               quality: (data.quality || 80) / 100,
               maxWidth: data.width,
               maxHeight: data.height,
-              keepAspectRatio: data.keepAspectRatio !== false
+              maxSizeRatio: data.maxSizeRatio || 0.7
             })
             checkAborted()
             compressedImages.push(compressed)
