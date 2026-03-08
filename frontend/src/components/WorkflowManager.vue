@@ -275,15 +275,15 @@ function formatDate(dateStr) {
 .list-title {
   font-size: 14px;
   font-weight: 600;
-  color: #606266;
+  color: var(--text-secondary);
   margin-bottom: 12px;
   padding-bottom: 8px;
-  border-bottom: 1px solid #e4e7ed;
+  border-bottom: 1px solid var(--border-primary);
 }
 
 .empty-tip {
   text-align: center;
-  color: #909399;
+  color: var(--text-placeholder);
   padding: 40px 0;
 }
 
@@ -293,19 +293,19 @@ function formatDate(dateStr) {
   align-items: center;
   padding: 12px;
   margin-bottom: 8px;
-  background: #f5f7fa;
+  background: var(--bg-secondary);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .workflow-item:hover {
-  background: #e6f0ff;
+  background: var(--bg-hover);
 }
 
 .workflow-item.active {
-  background: #e6f0ff;
-  border: 1px solid #409eff;
+  background: var(--bg-hover);
+  border: 1px solid var(--color-primary);
 }
 
 .workflow-info {
@@ -316,7 +316,7 @@ function formatDate(dateStr) {
 .workflow-name {
   font-size: 14px;
   font-weight: 500;
-  color: #303133;
+  color: var(--text-primary);
   margin-bottom: 4px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -325,7 +325,7 @@ function formatDate(dateStr) {
 
 .workflow-time {
   font-size: 12px;
-  color: #909399;
+  color: var(--text-tertiary);
 }
 
 .workflow-actions {

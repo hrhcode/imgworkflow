@@ -229,7 +229,7 @@ function selectTemplate(template) {
   align-items: center;
   gap: 16px;
   padding: 16px;
-  background: #f5f7fa;
+  background: var(--bg-secondary);
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -237,9 +237,9 @@ function selectTemplate(template) {
 }
 
 .template-item:hover {
-  background: #fff;
-  border-color: #409eff;
-  box-shadow: 0 4px 16px rgba(64, 158, 255, 0.15);
+  background: var(--bg-primary);
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-md);
   transform: translateX(4px);
 }
 
@@ -247,7 +247,7 @@ function selectTemplate(template) {
   width: 56px;
   height: 56px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -263,13 +263,13 @@ function selectTemplate(template) {
 .template-name {
   font-size: 16px;
   font-weight: 600;
-  color: #303133;
+  color: var(--text-primary);
   margin-bottom: 4px;
 }
 
 .template-desc {
   font-size: 13px;
-  color: #606266;
+  color: var(--text-secondary);
   margin-bottom: 8px;
 }
 
@@ -285,12 +285,12 @@ function selectTemplate(template) {
 }
 
 .arrow-icon {
-  color: #c0c4cc;
+  color: var(--text-placeholder);
   font-size: 20px;
   flex-shrink: 0;
 }
 
 .template-item:hover .arrow-icon {
-  color: #409eff;
+  color: var(--color-primary);
 }
 </style>

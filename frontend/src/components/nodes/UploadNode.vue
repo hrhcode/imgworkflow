@@ -33,16 +33,16 @@ defineProps({
 
 <style scoped>
 .workflow-node {
-  background: #fff;
+  background: var(--bg-primary);
   border: 2px solid #3b82f6;
   border-radius: 12px;
   min-width: 180px;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+  box-shadow: var(--shadow-md);
   transition: all 0.2s ease;
 }
 
 .workflow-node:hover {
-  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.25);
+  box-shadow: var(--shadow-lg);
 }
 
 .node-header {
@@ -65,7 +65,7 @@ defineProps({
 }
 
 .placeholder {
-  color: #94a3b8;
+  color: var(--text-placeholder);
   font-size: 12px;
   text-align: center;
 }
@@ -74,7 +74,7 @@ defineProps({
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #10b981;
+  color: var(--color-success);
   font-size: 14px;
   font-weight: 500;
 }
@@ -88,8 +88,8 @@ defineProps({
   width: 14px !important;
   height: 14px !important;
   background: #3b82f6 !important;
-  border: 3px solid #fff !important;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+  border: 3px solid var(--bg-primary) !important;
+  box-shadow: var(--handle-shadow);
 }
 
 .handle-source:hover {

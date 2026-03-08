@@ -143,6 +143,6 @@ async function clearFiles() {
 
 .file-count {
   font-size: 12px;
-  color: #67c23a;
+  color: var(--color-success);
 }
 </style>

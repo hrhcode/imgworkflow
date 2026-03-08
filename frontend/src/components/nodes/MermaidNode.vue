@@ -30,16 +30,16 @@ defineProps({
 
 <style scoped>
 .workflow-node {
-  background: #fff;
+  background: var(--bg-primary);
   border: 2px solid #ec4899;
   border-radius: 12px;
   min-width: 160px;
-  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.15);
+  box-shadow: var(--shadow-md);
   transition: all 0.2s ease;
 }
 
 .workflow-node:hover {
-  box-shadow: 0 8px 24px rgba(236, 72, 153, 0.25);
+  box-shadow: var(--shadow-lg);
 }
 
 .node-header {
@@ -64,22 +64,22 @@ defineProps({
 .code-preview {
   font-family: 'Consolas', 'Monaco', monospace;
   font-size: 11px;
-  color: #64748b;
-  background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
+  color: var(--text-tertiary);
+  background: var(--bg-secondary);
   padding: 10px;
   border-radius: 6px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  border: 1px solid #fbcfe8;
+  border: 1px solid var(--border-primary);
 }
 
 .handle-source {
   width: 14px !important;
   height: 14px !important;
   background: #ec4899 !important;
-  border: 3px solid #fff !important;
-  box-shadow: 0 2px 8px rgba(236, 72, 153, 0.4);
+  border: 3px solid var(--bg-primary) !important;
+  box-shadow: var(--handle-shadow);
 }
 
 .handle-source:hover {

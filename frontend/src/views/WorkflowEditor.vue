@@ -68,6 +68,26 @@
           />
           <span class="progress-text">{{ workflowStore.executionProgress }}%</span>
         </div>
+        
+        <div class="toolbar-actions">
+          <el-tooltip :content="themeStore.isDark ? '切换到亮色模式' : '切换到暗色模式'" placement="bottom">
+            <el-button class="theme-btn" circle @click="themeStore.toggleTheme">
+              <el-icon :size="18">
+                <component :is="themeStore.isDark ? 'Sunny' : 'Moon'" />
+              </el-icon>
+            </el-button>
+          </el-tooltip>
+          
+          <el-tooltip content="访问 GitHub 仓库" placement="bottom">
+            <a href="https://github.com/your-username/imgworkflow" target="_blank" class="github-link">
+              <el-button class="github-btn" circle>
+                <svg height="18" viewBox="0 0 16 16" width="18" fill="currentColor">
+                  <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+                </svg>
+              </el-button>
+            </a>
+          </el-tooltip>
+        </div>
       </div>
     </div>
 
@@ -259,6 +279,7 @@ import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/controls/dist/style.css'
 import { useWorkflowStore } from '@/stores/workflow'
+import { useThemeStore } from '@/stores/theme'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   Upload,
@@ -278,7 +299,9 @@ import {
   Folder,
   ArrowLeft,
   ArrowRight,
-  Connection
+  Connection,
+  Moon,
+  Sunny
 } from '@element-plus/icons-vue'
 
 const { addEdges, removeEdges, removeNodes, getSelectedNodes, project } = useVueFlow()
@@ -304,6 +327,7 @@ import WorkflowManager from '@/components/WorkflowManager.vue'
 import TemplatePanel from '@/components/TemplatePanel.vue'
 
 const workflowStore = useWorkflowStore()
+const themeStore = useThemeStore()
 
 const showWorkflowManager = ref(false)
 const showTemplatePanel = ref(false)
@@ -358,6 +382,7 @@ const configPanels = {
 }
 
 onMounted(() => {
+  themeStore.initTheme()
   workflowStore.loadSavedWorkflows()
   document.addEventListener('click', hideContextMenu)
   
@@ -804,7 +829,8 @@ function onSelectTemplate(template) {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #f8fafc;
+  background: var(--bg-secondary);
+  transition: background-color 0.3s ease;
 }
 
 .toolbar {
@@ -813,9 +839,10 @@ function onSelectTemplate(template) {
   justify-content: space-between;
   padding: 0 20px;
   height: 56px;
-  background: #fff;
-  border-bottom: 1px solid #e2e8f0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border-primary);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
 }
 
 .toolbar-left {
@@ -831,13 +858,13 @@ function onSelectTemplate(template) {
 }
 
 .logo .el-icon {
-  color: #6366f1;
+  color: var(--color-primary);
 }
 
 .logo-text {
   font-size: 18px;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text-primary);
   letter-spacing: -0.5px;
 }
 
@@ -846,27 +873,27 @@ function onSelectTemplate(template) {
 }
 
 .workflow-name :deep(.el-input__wrapper) {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
   box-shadow: none;
   border-radius: 6px;
 }
 
 .workflow-name :deep(.el-input__wrapper:hover) {
-  border-color: #cbd5e1;
+  border-color: var(--border-secondary);
 }
 
 .workflow-name :deep(.el-input__wrapper:focus-within) {
-  border-color: #6366f1;
-  background: #fff;
+  border-color: var(--border-focus);
+  background: var(--bg-primary);
 }
 
 .workflow-name :deep(.el-input__inner) {
-  color: #1e293b;
+  color: var(--text-primary);
 }
 
 .workflow-name :deep(.el-input__inner::placeholder) {
-  color: #94a3b8;
+  color: var(--text-placeholder);
 }
 
 .toolbar-center {
@@ -909,26 +936,25 @@ function onSelectTemplate(template) {
 }
 
 .toolbar-center .el-button--success {
-  background: #10b981;
-  border-color: #10b981;
+  background: var(--color-success);
+  border-color: var(--color-success);
 }
 
 .toolbar-center .el-button--success:hover {
-  background: #059669;
-  border-color: #059669;
+  background: var(--color-success-hover);
+  border-color: var(--color-success-hover);
 }
 
 .toolbar-center .el-button--danger {
-  background: #ef4444;
-  border-color: #ef4444;
+  background: var(--color-danger);
+  border-color: var(--color-danger);
 }
 
 .toolbar-center .el-button--danger:hover {
-  background: #dc2626;
-  border-color: #dc2626;
+  background: var(--color-danger-hover);
+  border-color: var(--color-danger-hover);
 }
 
-/* 只有执行中的终止按钮才有脉冲动画 */
 .toolbar-center .action-group .el-button--danger {
   animation: pulse-danger 1.5s ease-in-out infinite;
 }
@@ -943,43 +969,45 @@ function onSelectTemplate(template) {
 }
 
 .toolbar-center .save-btn {
-  background: #3b82f6;
-  border-color: #3b82f6;
+  background: var(--color-info);
+  border-color: var(--color-info);
 }
 
 .toolbar-center .save-btn:hover {
-  background: #2563eb;
-  border-color: #2563eb;
+  background: var(--color-info-hover);
+  border-color: var(--color-info-hover);
 }
 
 .toolbar-center .el-button--danger.is-plain {
-  background: #fef2f2;
-  border-color: #fecaca;
-  color: #ef4444;
+  background: var(--bg-secondary);
+  border-color: var(--border-secondary);
+  color: var(--color-danger);
 }
 
 .toolbar-center .el-button--danger.is-plain:hover {
-  background: #fee2e2;
-  border-color: #fca5a5;
-  color: #dc2626;
+  background: var(--bg-hover);
+  border-color: var(--color-danger);
+  color: var(--color-danger-hover);
 }
 
 .manage-group .el-button {
-  background: #f8fafc;
-  border-color: #e2e8f0;
-  color: #475569;
+  background: var(--bg-secondary);
+  border-color: var(--border-primary);
+  color: var(--text-secondary);
 }
 
 .manage-group .el-button:hover {
-  background: #f1f5f9;
-  border-color: #cbd5e1;
-  color: #334155;
+  background: var(--bg-hover);
+  border-color: var(--border-secondary);
+  color: var(--text-primary);
 }
 
 .toolbar-right {
   min-width: 140px;
   display: flex;
+  align-items: center;
   justify-content: flex-end;
+  gap: 12px;
 }
 
 .progress-info {
@@ -987,16 +1015,48 @@ function onSelectTemplate(template) {
   align-items: center;
   gap: 10px;
   padding: 6px 12px;
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
+  background: var(--progress-bg);
+  border: 1px solid var(--progress-border);
   border-radius: 6px;
 }
 
 .progress-text {
   font-size: 12px;
-  color: #16a34a;
+  color: var(--progress-text);
   font-weight: 600;
   min-width: 32px;
+}
+
+.toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.theme-btn,
+.github-btn {
+  background: var(--bg-secondary);
+  border-color: var(--border-primary);
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+}
+
+.theme-btn:hover,
+.github-btn:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-secondary);
+  color: var(--color-primary);
+}
+
+.github-link {
+  text-decoration: none;
+  display: flex;
+}
+
+.github-link .github-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* 响应式设计 */
@@ -1062,11 +1122,11 @@ function onSelectTemplate(template) {
 
 .node-panel {
   width: 280px;
-  background: #fff;
-  border-right: 1px solid #e2e8f0;
+  background: var(--bg-primary);
+  border-right: 1px solid var(--border-primary);
   display: flex;
   flex-direction: column;
-  transition: width 0.3s ease;
+  transition: width 0.3s ease, background-color 0.3s ease;
 }
 
 .node-panel.collapsed {
@@ -1080,9 +1140,9 @@ function onSelectTemplate(template) {
   padding: 16px;
   font-size: 15px;
   font-weight: 600;
-  color: #1e293b;
-  border-bottom: 1px solid #e2e8f0;
-  background: #fff;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-primary);
+  background: var(--bg-primary);
 }
 
 .node-panel.collapsed .panel-header {
@@ -1092,15 +1152,15 @@ function onSelectTemplate(template) {
 
 .collapse-btn {
   margin-left: auto;
-  background: #f8fafc;
-  border-color: #e2e8f0;
-  color: #64748b;
+  background: var(--bg-secondary);
+  border-color: var(--border-primary);
+  color: var(--text-tertiary);
 }
 
 .collapse-btn:hover {
-  background: #f1f5f9;
-  border-color: #cbd5e1;
-  color: #475569;
+  background: var(--bg-hover);
+  border-color: var(--border-secondary);
+  color: var(--text-secondary);
 }
 
 .node-panel.collapsed .collapse-btn {
@@ -1120,7 +1180,7 @@ function onSelectTemplate(template) {
 .group-title {
   font-size: 11px;
   font-weight: 600;
-  color: #64748b;
+  color: var(--text-tertiary);
   padding: 8px 12px;
   text-transform: uppercase;
   letter-spacing: 1.5px;
@@ -1137,7 +1197,7 @@ function onSelectTemplate(template) {
   align-items: center;
   gap: 14px;
   padding: 14px;
-  background: #f8fafc;
+  background: var(--bg-secondary);
   border-radius: 12px;
   cursor: grab;
   transition: all 0.2s ease;
@@ -1145,9 +1205,9 @@ function onSelectTemplate(template) {
 }
 
 .node-item:hover {
-  background: #fff;
-  border-color: var(--node-color, #6366f1);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  background: var(--bg-primary);
+  border-color: var(--node-color, var(--color-primary));
+  box-shadow: var(--shadow-md);
   transform: translateY(-2px);
 }
 
@@ -1164,7 +1224,7 @@ function onSelectTemplate(template) {
   justify-content: center;
   color: #fff;
   flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-md);
 }
 
 .node-info {
@@ -1175,13 +1235,13 @@ function onSelectTemplate(template) {
 .node-label {
   font-size: 14px;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--text-primary);
   margin-bottom: 2px;
 }
 
 .node-desc {
   font-size: 12px;
-  color: #64748b;
+  color: var(--text-tertiary);
 }
 
 .canvas-container {
@@ -1196,7 +1256,7 @@ function onSelectTemplate(template) {
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
-  color: #94a3b8;
+  color: var(--text-placeholder);
   pointer-events: none;
 }
 
@@ -1212,8 +1272,8 @@ function onSelectTemplate(template) {
 
 .config-panel {
   width: 320px;
-  background: #fff;
-  border-left: 1px solid #e2e8f0;
+  background: var(--bg-primary);
+  border-left: 1px solid var(--border-primary);
   display: flex;
   flex-direction: column;
 }
@@ -1236,13 +1296,13 @@ function onSelectTemplate(template) {
 
 .context-menu {
   position: fixed;
-  background: #fff;
+  background: var(--bg-primary);
   border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-xl);
   padding: 8px 0;
   z-index: 9999;
   min-width: 160px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-primary);
 }
 
 .menu-item {
@@ -1252,16 +1312,16 @@ function onSelectTemplate(template) {
   padding: 12px 16px;
   cursor: pointer;
   font-size: 14px;
-  color: #1e293b;
+  color: var(--text-primary);
   transition: all 0.15s ease;
 }
 
 .menu-item:hover {
-  background: #f1f5f9;
+  background: var(--bg-hover);
 }
 
 .menu-item:first-child:hover {
-  color: #ef4444;
-  background: #fef2f2;
+  color: var(--color-danger);
+  background: var(--bg-secondary);
 }
 </style>
