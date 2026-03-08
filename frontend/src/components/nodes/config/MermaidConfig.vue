@@ -16,12 +16,10 @@
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="preview">预览</el-button>
+        <el-button type="primary" @click="preview" :loading="loading">预览</el-button>
       </el-form-item>
     </el-form>
-    <div class="preview-area" v-if="previewUrl">
-      <img :src="previewUrl" alt="预览" />
-    </div>
+    <div class="preview-area" v-if="previewSvg" v-html="previewSvg"></div>
     <div class="help-text">
       <el-link type="primary" href="https://mermaid.js.org/intro/" target="_blank">
         Mermaid语法帮助
@@ -35,6 +33,8 @@
  * Mermaid节点配置面板
  */
 import { ref, watch } from 'vue'
+import { renderMermaid } from '@/services/mermaidService'
+import { ElMessage } from 'element-plus'
 
 const props = defineProps({
   node: {
@@ -47,7 +47,8 @@ const emit = defineEmits(['update'])
 
 const code = ref('graph TD\n    A[开始] --> B[结束]')
 const outputFormat = ref('png')
-const previewUrl = ref('')
+const previewSvg = ref('')
+const loading = ref(false)
 
 watch(() => props.node.data, (data) => {
   if (data && data.code) {
@@ -66,8 +67,18 @@ watch([code, outputFormat], () => {
 /**
  * 预览图片
  */
-function preview() {
-  // 预览功能将在后端API完成后实现
+async function preview() {
+  loading.value = true
+  try {
+    const svg = await renderMermaid(code.value)
+    previewSvg.value = svg
+    emit('update', { code: code.value, previewSvg: svg })
+    ElMessage.success('预览成功')
+  } catch (error) {
+    ElMessage.error('预览失败：' + error.message)
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
@@ -88,12 +99,11 @@ function preview() {
 .preview-area {
   margin-top: 12px;
   text-align: center;
+  overflow: auto;
 }
 
-.preview-area img {
+.preview-area :deep(svg) {
   max-width: 100%;
-  border: 1px solid #e4e7ed;
-  border-radius: 4px;
 }
 
 .help-text {

@@ -5,9 +5,7 @@
         <el-select v-model="format" placeholder="选择目标格式">
           <el-option label="PNG" value="png" />
           <el-option label="JPG" value="jpg" />
-          <el-option label="GIF" value="gif" />
           <el-option label="WebP" value="webp" />
-          <el-option label="BMP" value="bmp" />
         </el-select>
       </el-form-item>
       <el-form-item label="JPG质量" v-if="format === 'jpg'">
@@ -33,12 +31,12 @@ const props = defineProps({
 const emit = defineEmits(['update'])
 
 const format = ref('png')
-const jpgQuality = ref(90)
+const jpgQuality = ref(92)
 
 watch(() => props.node.data, (data) => {
   if (data) {
     format.value = data.format || 'png'
-    jpgQuality.value = data.jpgQuality || 90
+    jpgQuality.value = data.jpgQuality || 92
   }
 }, { immediate: true })
 

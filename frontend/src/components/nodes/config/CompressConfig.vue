@@ -42,6 +42,7 @@ watch(() => props.node.data, (data) => {
     quality.value = data.quality || 80
     width.value = data.width || null
     height.value = data.height || null
+    keepAspectRatio.value = data.keepAspectRatio !== false
   }
 }, { immediate: true })
 

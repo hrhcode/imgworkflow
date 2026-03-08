@@ -10,7 +10,7 @@
         />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="preview">预览</el-button>
+        <el-button type="primary" @click="preview" :loading="loading">预览</el-button>
       </el-form-item>
     </el-form>
     <div class="preview-area" v-if="previewUrl">
@@ -29,6 +29,8 @@
  * PlantUML节点配置面板
  */
 import { ref, watch } from 'vue'
+import { previewPlantUML } from '@/services/plantumlService'
+import { ElMessage } from 'element-plus'
 
 const props = defineProps({
   node: {
@@ -41,6 +43,7 @@ const emit = defineEmits(['update'])
 
 const code = ref('@startuml\nalice -> bob\n@enduml')
 const previewUrl = ref('')
+const loading = ref(false)
 
 watch(() => props.node.data, (data) => {
   if (data && data.code) {
@@ -55,8 +58,18 @@ watch(code, () => {
 /**
  * 预览图片
  */
-function preview() {
-  // 预览功能将在后端API完成后实现
+async function preview() {
+  loading.value = true
+  try {
+    const url = await previewPlantUML(code.value)
+    previewUrl.value = url
+    emit('update', { code: code.value, previewUrl: url })
+    ElMessage.success('预览成功')
+  } catch (error) {
+    ElMessage.error('预览失败：' + error.message)
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 

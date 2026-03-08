@@ -60,7 +60,8 @@ watch([downloadMode, filePrefix], () => {
  * 下载文件
  */
 function download() {
-  // 下载功能将在后端API完成后实现
+  // 下载功能在工作流执行时处理
+  emit('update', { triggerDownload: true })
 }
 </script>
 

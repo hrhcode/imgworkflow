@@ -15,7 +15,7 @@
       </div>
       <template #tip>
         <div class="el-upload__tip">
-          支持 JPG、PNG、GIF、WebP、BMP 格式
+          支持 JPG、PNG、GIF、WebP、BMP 格式，图片存储在浏览器本地
         </div>
       </template>
     </el-upload>
@@ -31,7 +31,7 @@
  * 图片上传节点配置面板
  */
 import { ref, watch } from 'vue'
-import { uploadImages } from '@/api'
+import { storeImages } from '@/services/storageService'
 import { ElMessage } from 'element-plus'
 
 const props = defineProps({
@@ -46,7 +46,7 @@ const emit = defineEmits(['update'])
 const fileList = ref([])
 
 watch(() => props.node.data.files, (newFiles) => {
-  if (newFiles) {
+  if (newFiles && newFiles.length > 0) {
     fileList.value = newFiles.map((file, index) => ({
       name: file.name || `图片${index + 1}`,
       raw: file
@@ -59,7 +59,19 @@ watch(() => props.node.data.files, (newFiles) => {
  */
 async function handleFileChange(file, files) {
   fileList.value = files
-  emit('update', { files: files.map(f => f.raw) })
+  
+  // 存储图片到IndexedDB
+  try {
+    const storedImages = await storeImages(files.map(f => f.raw))
+    emit('update', { 
+      files: files.map(f => f.raw),
+      fileIds: storedImages.map(img => img.id),
+      fileCount: files.length
+    })
+    ElMessage.success(`已存储 ${storedImages.length} 张图片`)
+  } catch (error) {
+    ElMessage.error('图片存储失败：' + error.message)
+  }
 }
 
 /**
@@ -67,7 +79,7 @@ async function handleFileChange(file, files) {
  */
 function clearFiles() {
   fileList.value = []
-  emit('update', { files: [], fileIds: [] })
+  emit('update', { files: [], fileIds: [], fileCount: 0 })
 }
 </script>
 
