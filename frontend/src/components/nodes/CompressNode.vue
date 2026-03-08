@@ -8,6 +8,10 @@
       <div class="level-badge" :class="levelClass">
         {{ levelName }}
       </div>
+      <div v-if="isAdvanced" class="advanced-badge">
+        <el-icon><Setting /></el-icon>
+        <span>高级</span>
+      </div>
     </div>
     <Handle type="target" :position="Position.Left" class="handle-target" />
     <Handle type="source" :position="Position.Right" class="handle-source" />
@@ -20,6 +24,7 @@
  */
 import { computed } from 'vue'
 import { Handle, Position } from '@vue-flow/core'
+import { Setting } from '@element-plus/icons-vue'
 
 const props = defineProps({
   data: {
@@ -32,14 +37,25 @@ const levelNames = {
   light: '轻度',
   normal: '普通',
   strong: '强力',
-  extreme: '极强'
+  extreme: '极强',
+  custom: '自定义'
 }
 
+const isAdvanced = computed(() => {
+  return props.data.isAdvanced === true
+})
+
 const levelName = computed(() => {
+  if (isAdvanced.value) {
+    return '自定义'
+  }
   return levelNames[props.data.compressLevel] || '普通'
 })
 
 const levelClass = computed(() => {
+  if (isAdvanced.value) {
+    return 'level-custom'
+  }
   return `level-${props.data.compressLevel || 'normal'}`
 })
 </script>
@@ -75,6 +91,10 @@ const levelClass = computed(() => {
 
 .node-content {
   padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
 }
 
 .level-badge {
@@ -103,6 +123,22 @@ const levelClass = computed(() => {
 .level-extreme {
   background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
   color: #991b1b;
+}
+
+.level-custom {
+  background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+  color: #5b21b6;
+}
+
+.advanced-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: #8b5cf6;
+  background: #f5f3ff;
+  padding: 2px 8px;
+  border-radius: 4px;
 }
 
 .handle-target,

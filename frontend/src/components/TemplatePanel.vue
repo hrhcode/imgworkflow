@@ -24,8 +24,8 @@
                 v-for="node in template.nodeTypes"
                 :key="node"
                 size="small"
-                type="info"
                 class="node-tag"
+                :style="getNodeTagStyle(node)"
               >
                 {{ node }}
               </el-tag>
@@ -50,7 +50,8 @@ import {
   SwitchFilled,
   Share,
   DataLine,
-  DocumentCopy
+  DocumentCopy,
+  Connection
 } from '@element-plus/icons-vue'
 
 /**
@@ -62,7 +63,20 @@ const iconMap = {
   Switch: SwitchFilled,
   Share,
   DataLine,
-  Compress: DocumentCopy
+  Compress: DocumentCopy,
+  Connection
+}
+
+/**
+ * 节点颜色映射表
+ */
+const nodeColorMap = {
+  '上传': { bg: '#dbeafe', color: '#1e40af', border: '#3b82f6' },
+  '下载': { bg: '#fee2e2', color: '#991b1b', border: '#ef4444' },
+  '压缩': { bg: '#d1fae5', color: '#065f46', border: '#10b981' },
+  '转换': { bg: '#fef3c7', color: '#92400e', border: '#f59e0b' },
+  'Mermaid': { bg: '#fdf2f8', color: '#9d174d', border: '#ec4899' },
+  'PlantUML': { bg: '#f5f3ff', color: '#5b21b6', border: '#8b5cf6' }
 }
 
 /**
@@ -70,6 +84,21 @@ const iconMap = {
  */
 function getIcon(iconName) {
   return iconMap[iconName] || DocumentCopy
+}
+
+/**
+ * 获取节点标签样式
+ */
+function getNodeTagStyle(nodeName) {
+  const colors = nodeColorMap[nodeName]
+  if (colors) {
+    return {
+      backgroundColor: colors.bg,
+      color: colors.color,
+      borderColor: colors.border
+    }
+  }
+  return {}
 }
 
 const props = defineProps({
@@ -95,6 +124,24 @@ watch(visible, (val) => {
  * 预设模板定义
  */
 const templates = ref([
+  {
+    id: 'full-pipeline',
+    name: '图片处理流水线',
+    description: '完整的图片处理流程',
+    icon: 'Share',
+    nodeTypes: ['上传', '转换', '压缩', '下载'],
+    nodes: [
+      { type: 'upload', position: { x: 100, y: 200 } },
+      { type: 'convert', position: { x: 300, y: 200 } },
+      { type: 'compress', position: { x: 500, y: 200 } },
+      { type: 'download', position: { x: 700, y: 200 } }
+    ],
+    edges: [
+      { id: 'e1', source: 'node_1', target: 'node_2', sourceHandle: null, targetHandle: null },
+      { id: 'e2', source: 'node_2', target: 'node_3', sourceHandle: null, targetHandle: null },
+      { id: 'e3', source: 'node_3', target: 'node_4', sourceHandle: null, targetHandle: null }
+    ]
+  },
   {
     id: 'compress-download',
     name: '图片压缩下载',
@@ -128,38 +175,6 @@ const templates = ref([
     ]
   },
   {
-    id: 'full-pipeline',
-    name: '图片处理流水线',
-    description: '完整的图片处理流程',
-    icon: 'Share',
-    nodeTypes: ['上传', '压缩', '转换', '下载'],
-    nodes: [
-      { type: 'upload', position: { x: 100, y: 200 } },
-      { type: 'compress', position: { x: 300, y: 200 } },
-      { type: 'convert', position: { x: 500, y: 200 } },
-      { type: 'download', position: { x: 700, y: 200 } }
-    ],
-    edges: [
-      { id: 'e1', source: 'node_1', target: 'node_2', sourceHandle: null, targetHandle: null },
-      { id: 'e2', source: 'node_2', target: 'node_3', sourceHandle: null, targetHandle: null },
-      { id: 'e3', source: 'node_3', target: 'node_4', sourceHandle: null, targetHandle: null }
-    ]
-  },
-  {
-    id: 'mermaid-download',
-    name: 'Mermaid绘图下载',
-    description: '使用Mermaid语法绘制图表并下载',
-    icon: 'Share',
-    nodeTypes: ['Mermaid', '下载'],
-    nodes: [
-      { type: 'mermaid', position: { x: 200, y: 200 } },
-      { type: 'download', position: { x: 450, y: 200 } }
-    ],
-    edges: [
-      { id: 'e1', source: 'node_1', target: 'node_2', sourceHandle: null, targetHandle: null }
-    ]
-  },
-  {
     id: 'plantuml-download',
     name: 'PlantUML绘图下载',
     description: '使用PlantUML语法绘制图表并下载',
@@ -167,6 +182,20 @@ const templates = ref([
     nodeTypes: ['PlantUML', '下载'],
     nodes: [
       { type: 'plantuml', position: { x: 200, y: 200 } },
+      { type: 'download', position: { x: 450, y: 200 } }
+    ],
+    edges: [
+      { id: 'e1', source: 'node_1', target: 'node_2', sourceHandle: null, targetHandle: null }
+    ]
+  },
+  {
+    id: 'mermaid-download',
+    name: 'Mermaid绘图下载',
+    description: '使用Mermaid语法绘制图表并下载',
+    icon: 'Connection',
+    nodeTypes: ['Mermaid', '下载'],
+    nodes: [
+      { type: 'mermaid', position: { x: 200, y: 200 } },
       { type: 'download', position: { x: 450, y: 200 } }
     ],
     edges: [
@@ -252,6 +281,7 @@ function selectTemplate(template) {
 
 .node-tag {
   font-size: 11px;
+  border-width: 1px;
 }
 
 .arrow-icon {

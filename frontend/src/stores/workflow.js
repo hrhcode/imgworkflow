@@ -81,6 +81,41 @@ export const useWorkflowStore = defineStore('workflow', () => {
   }
 
   /**
+   * 保存当前工作流到临时存储（用于刷新恢复）
+   */
+  function saveCurrentToTemp() {
+    const tempWorkflow = {
+      nodes: nodes.value,
+      edges: edges.value,
+      name: currentWorkflowName.value
+    }
+    localStorage.setItem('tempWorkflow', JSON.stringify(tempWorkflow))
+  }
+
+  /**
+   * 从临时存储恢复工作流
+   */
+  function loadFromTemp() {
+    const temp = localStorage.getItem('tempWorkflow')
+    if (temp) {
+      const tempWorkflow = JSON.parse(temp)
+      nodes.value = tempWorkflow.nodes || []
+      edges.value = tempWorkflow.edges || []
+      currentWorkflowName.value = tempWorkflow.name || '未命名工作流'
+      updateNodeIdCounter()
+      return true
+    }
+    return false
+  }
+
+  /**
+   * 清除临时存储的工作流
+   */
+  function clearTempWorkflow() {
+    localStorage.removeItem('tempWorkflow')
+  }
+
+  /**
    * 保存当前工作流
    */
   function saveCurrentWorkflow(name) {
@@ -228,6 +263,7 @@ export const useWorkflowStore = defineStore('workflow', () => {
     executionProgress.value = 0
     executionLogs.value = []
     nodeIdCounter = 0
+    clearTempWorkflow()
   }
 
   /**
@@ -424,15 +460,23 @@ function cleanupExecution() {
         }
         const compressedImages = []
         const compressLevel = data.compressLevel || 'normal'
-        addLog(`压缩等级: ${compressLevel}`, 'info')
+        const isAdvanced = data.isAdvanced === true
+        
+        if (isAdvanced) {
+          addLog(`压缩模式: 自定义 (质量: ${data.quality}%, 尺寸比例: ${Math.round(data.maxSizeRatio * 100)}%)`, 'info')
+        } else {
+          addLog(`压缩等级: ${compressLevel}`, 'info')
+        }
+        
         for (const file of inputData) {
           checkAborted()
           try {
             const compressed = await compressImage(file, {
               quality: (data.quality || 80) / 100,
-              maxWidth: data.width,
-              maxHeight: data.height,
-              maxSizeRatio: data.maxSizeRatio || 0.7
+              maxWidth: data.maxWidth || data.width,
+              maxHeight: data.maxHeight || data.height,
+              maxSizeRatio: data.maxSizeRatio || 0.7,
+              outputFormat: data.outputFormat || ''
             })
             checkAborted()
             compressedImages.push(compressed)
@@ -546,6 +590,8 @@ function cleanupExecution() {
         'image/jpeg': 'jpg',
         'image/webp': 'webp',
         'image/gif': 'gif',
+        'image/bmp': 'bmp',
+        'image/avif': 'avif',
         'image/svg+xml': 'svg'
       }
       return typeMap[file.type] || 'png'
@@ -580,6 +626,9 @@ function cleanupExecution() {
     savedWorkflows,
     generateNodeId,
     loadSavedWorkflows,
+    saveCurrentToTemp,
+    loadFromTemp,
+    clearTempWorkflow,
     saveCurrentWorkflow,
     loadWorkflow,
     deleteWorkflow,

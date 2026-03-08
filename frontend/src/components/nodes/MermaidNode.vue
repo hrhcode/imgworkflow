@@ -1,7 +1,7 @@
 <template>
   <div class="workflow-node mermaid-node">
     <div class="node-header">
-      <el-icon><Share /></el-icon>
+      <el-icon><Connection /></el-icon>
       <span>Mermaid</span>
     </div>
     <div class="node-content">
@@ -18,6 +18,7 @@
  * Mermaid绘图节点组件
  */
 import { Handle, Position } from '@vue-flow/core'
+import { Connection } from '@element-plus/icons-vue'
 
 defineProps({
   data: {

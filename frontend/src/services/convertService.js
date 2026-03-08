@@ -1,11 +1,46 @@
 /**
+ * MIME类型映射
+ */
+const MIME_TYPES = {
+  png: 'image/png',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  webp: 'image/webp',
+  gif: 'image/gif',
+  bmp: 'image/bmp',
+  avif: 'image/avif'
+}
+
+/**
+ * 检查浏览器是否支持AVIF格式
+ */
+function checkAvifSupport() {
+  const canvas = document.createElement('canvas')
+  canvas.width = 1
+  canvas.height = 1
+  return canvas.toDataURL('image/avif').startsWith('data:image/avif')
+}
+
+/**
  * 转换图片格式
  * @param {File|Blob} file - 原始图片文件
- * @param {string} targetFormat - 目标格式 (png/jpg/webp)
- * @param {number} quality - 质量 (0-1)，仅对jpg和webp有效
+ * @param {string} targetFormat - 目标格式 (png/jpg/webp/gif/bmp/avif)
+ * @param {number} quality - 质量 (0-1)，仅对jpg、webp和avif有效
  * @returns {Promise<Blob>} - 转换后的图片Blob
  */
 export async function convertImageFormat(file, targetFormat = 'png', quality = 0.92) {
+  const format = targetFormat.toLowerCase()
+  
+  // BMP格式特殊处理 - 直接返回原始数据（如果已经是BMP）或简单转换
+  if (format === 'bmp') {
+    return convertToBmp(file)
+  }
+  
+  // AVIF格式检查支持性
+  if (format === 'avif' && !checkAvifSupport()) {
+    throw new Error('您的浏览器不支持AVIF格式，请使用Chrome 96+或其他支持AVIF的浏览器')
+  }
+  
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
     
@@ -19,20 +54,15 @@ export async function convertImageFormat(file, targetFormat = 'png', quality = 0
         
         const ctx = canvas.getContext('2d')
         
-        // 对于JPG格式，填充白色背景
-        if (targetFormat === 'jpg' || targetFormat === 'jpeg') {
+        // 对于JPG格式，填充白色背景（因为JPG不支持透明）
+        if (format === 'jpg' || format === 'jpeg') {
           ctx.fillStyle = '#FFFFFF'
           ctx.fillRect(0, 0, canvas.width, canvas.height)
         }
         
         ctx.drawImage(img, 0, 0)
         
-        let mimeType = 'image/png'
-        if (targetFormat === 'jpg' || targetFormat === 'jpeg') {
-          mimeType = 'image/jpeg'
-        } else if (targetFormat === 'webp') {
-          mimeType = 'image/webp'
-        }
+        const mimeType = MIME_TYPES[format] || 'image/png'
         
         canvas.toBlob(
           (blob) => {
@@ -54,6 +84,100 @@ export async function convertImageFormat(file, targetFormat = 'png', quality = 0
     reader.onerror = () => reject(new Error('文件读取失败'))
     reader.readAsDataURL(file)
   })
+}
+
+/**
+ * 转换为BMP格式
+ * @param {File|Blob} file - 原始图片文件
+ * @returns {Promise<Blob>} - BMP格式的Blob
+ */
+async function convertToBmp(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    
+    reader.onload = (e) => {
+      const img = new Image()
+      
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        canvas.width = img.width
+        canvas.height = img.height
+        
+        const ctx = canvas.getContext('2d')
+        ctx.drawImage(img, 0, 0)
+        
+        // 获取ImageData
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+        const bmpBlob = createBmpFromImageData(imageData)
+        resolve(bmpBlob)
+      }
+      
+      img.onerror = () => reject(new Error('图片加载失败'))
+      img.src = e.target.result
+    }
+    
+    reader.onerror = () => reject(new Error('文件读取失败'))
+    reader.readAsDataURL(file)
+  })
+}
+
+/**
+ * 从ImageData创建BMP Blob
+ * @param {ImageData} imageData - 图像数据
+ * @returns {Blob} - BMP格式的Blob
+ */
+function createBmpFromImageData(imageData) {
+  const width = imageData.width
+  const height = imageData.height
+  const data = imageData.data
+  
+  // BMP文件头 (14字节) + DIB头 (40字节)
+  const headerSize = 54
+  // 每行需要4字节对齐
+  const rowSize = Math.ceil((width * 3) / 4) * 4
+  const padding = rowSize - width * 3
+  const imageSize = rowSize * height
+  const fileSize = headerSize + imageSize
+  
+  const buffer = new ArrayBuffer(fileSize)
+  const view = new DataView(buffer)
+  
+  // BMP文件头
+  view.setUint8(0, 0x42) // 'B'
+  view.setUint8(1, 0x4D) // 'M'
+  view.setUint32(2, fileSize, true) // 文件大小
+  view.setUint32(6, 0, true) // 保留
+  view.setUint32(10, headerSize, true) // 像素数据偏移
+  
+  // DIB头 (BITMAPINFOHEADER)
+  view.setUint32(14, 40, true) // DIB头大小
+  view.setInt32(18, width, true) // 宽度
+  view.setInt32(22, height, true) // 高度（正值表示从下到上）
+  view.setUint16(26, 1, true) // 颜色平面数
+  view.setUint16(28, 24, true) // 每像素位数
+  view.setUint32(30, 0, true) // 压缩方式（无压缩）
+  view.setUint32(34, imageSize, true) // 图像数据大小
+  view.setInt32(38, 2835, true) // 水平分辨率 (72 DPI)
+  view.setInt32(42, 2835, true) // 垂直分辨率 (72 DPI)
+  view.setUint32(46, 0, true) // 调色板颜色数
+  view.setUint32(50, 0, true) // 重要颜色数
+  
+  // 像素数据 (BGR格式，从下到上)
+  let offset = headerSize
+  for (let y = height - 1; y >= 0; y--) {
+    for (let x = 0; x < width; x++) {
+      const i = (y * width + x) * 4
+      view.setUint8(offset++, data[i + 2]) // B
+      view.setUint8(offset++, data[i + 1]) // G
+      view.setUint8(offset++, data[i])     // R
+    }
+    // 添加行填充
+    for (let p = 0; p < padding; p++) {
+      view.setUint8(offset++, 0)
+    }
+  }
+  
+  return new Blob([buffer], { type: 'image/bmp' })
 }
 
 /**

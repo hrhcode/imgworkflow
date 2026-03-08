@@ -251,7 +251,7 @@
 /**
  * 工作流编辑器主页面
  */
-import { ref, reactive, onMounted, onUnmounted, computed } from 'vue'
+import { ref, reactive, onMounted, onUnmounted, computed, watch } from 'vue'
 import { VueFlow, useVueFlow } from '@vue-flow/core'
 import { Background, BackgroundVariant } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
@@ -277,7 +277,8 @@ import {
   DocumentCopy,
   Folder,
   ArrowLeft,
-  ArrowRight
+  ArrowRight,
+  Connection
 } from '@element-plus/icons-vue'
 
 const { addEdges, removeEdges, removeNodes, getSelectedNodes, project } = useVueFlow()
@@ -321,7 +322,8 @@ const iconMap = {
   SwitchFilled,
   DataLine,
   Share,
-  DocumentCopy
+  DocumentCopy,
+  Connection
 }
 
 // 获取图标组件
@@ -338,7 +340,7 @@ const imageNodes = ref([
 
 const diagramNodes = ref([
   { type: 'plantuml', label: 'PlantUML', icon: 'DataLine', color: '#8b5cf6', desc: 'PlantUML绘图' },
-  { type: 'mermaid', label: 'Mermaid', icon: 'Share', color: '#ec4899', desc: 'Mermaid绘图' }
+  { type: 'mermaid', label: 'Mermaid', icon: 'Connection', color: '#ec4899', desc: 'Mermaid绘图' }
 ])
 
 const outputNodes = ref([
@@ -358,11 +360,79 @@ const configPanels = {
 onMounted(() => {
   workflowStore.loadSavedWorkflows()
   document.addEventListener('click', hideContextMenu)
+  
+  // 尝试从临时存储恢复工作流
+  const restored = workflowStore.loadFromTemp()
+  
+  // 如果没有恢复到工作流（为空或首次打开），加载默认模板
+  if (!restored || workflowStore.nodes.length === 0) {
+    loadDefaultTemplate()
+  }
 })
 
 onUnmounted(() => {
   document.removeEventListener('click', hideContextMenu)
 })
+
+/**
+ * 监听工作流变化，自动保存到临时存储
+ */
+watch(
+  () => [workflowStore.nodes, workflowStore.edges],
+  () => {
+    if (workflowStore.nodes.length > 0) {
+      workflowStore.saveCurrentToTemp()
+    }
+  },
+  { deep: true }
+)
+
+/**
+ * 加载默认模板（图片处理流水线）
+ */
+function loadDefaultTemplate() {
+  const defaultTemplate = {
+    id: 'full-pipeline',
+    name: '图片处理流水线',
+    nodes: [
+      { type: 'upload', position: { x: 100, y: 200 } },
+      { type: 'convert', position: { x: 300, y: 200 } },
+      { type: 'compress', position: { x: 500, y: 200 } },
+      { type: 'download', position: { x: 700, y: 200 } }
+    ],
+    edges: [
+      { id: 'e1', source: 'node_1', target: 'node_2', sourceHandle: null, targetHandle: null },
+      { id: 'e2', source: 'node_2', target: 'node_3', sourceHandle: null, targetHandle: null },
+      { id: 'e3', source: 'node_3', target: 'node_4', sourceHandle: null, targetHandle: null }
+    ]
+  }
+  
+  workflowStore.clearWorkflow()
+  workflowStore.currentWorkflowName = defaultTemplate.name
+  
+  const nodeIdMap = {}
+  
+  defaultTemplate.nodes.forEach((node, index) => {
+    const newId = workflowStore.generateNodeId()
+    const oldId = `node_${index + 1}`
+    nodeIdMap[oldId] = newId
+    
+    workflowStore.addNode({
+      id: newId,
+      type: node.type,
+      position: node.position,
+      data: getDefaultNodeData(node.type)
+    })
+  })
+  
+  defaultTemplate.edges.forEach(edge => {
+    workflowStore.addEdge({
+      ...edge,
+      source: nodeIdMap[edge.source] || edge.source,
+      target: nodeIdMap[edge.target] || edge.target
+    })
+  })
+}
 
 /**
  * 获取配置面板组件

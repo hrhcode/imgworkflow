@@ -38,6 +38,7 @@ export const COMPRESS_LEVELS = {
  * @param {number} options.maxWidth - 最大宽度
  * @param {number} options.maxHeight - 最大高度
  * @param {number} options.maxSizeRatio - 目标文件大小比例 (0-1)
+ * @param {string} options.outputFormat - 输出格式 (png/jpg/webp)
  * @returns {Promise<File>} - 压缩后的图片文件
  */
 export async function compressImage(file, options = {}) {
@@ -45,7 +46,8 @@ export async function compressImage(file, options = {}) {
     quality = 0.8,
     maxWidth = undefined,
     maxHeight = undefined,
-    maxSizeRatio = 0.7
+    maxSizeRatio = 0.7,
+    outputFormat = ''
   } = options
 
   const originalSizeMB = file.size / 1024 / 1024
@@ -59,8 +61,19 @@ export async function compressImage(file, options = {}) {
     maxIteration: 20
   }
 
+  // 设置输出格式
+  if (outputFormat) {
+    const fileTypeMap = {
+      png: 'image/png',
+      jpg: 'image/jpeg',
+      webp: 'image/webp'
+    }
+    compressionOptions.fileType = fileTypeMap[outputFormat] || file.type
+  }
+
+  // 设置最大尺寸
   if (maxWidth || maxHeight) {
-    compressionOptions.maxWidthOrHeight = Math.max(maxWidth || maxHeight, maxHeight || maxWidth)
+    compressionOptions.maxWidthOrHeight = Math.max(maxWidth || 0, maxHeight || 0)
   }
 
   try {
