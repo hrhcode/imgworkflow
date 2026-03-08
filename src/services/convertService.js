@@ -12,6 +12,20 @@ const MIME_TYPES = {
 }
 
 /**
+ * 根据原始文件名创建File对象，更新扩展名
+ * @param {Blob} blob - 图片Blob
+ * @param {string} originalName - 原始文件名
+ * @param {string} newFormat - 新格式
+ * @returns {File} - 带有更新后文件名的File对象
+ */
+function createFileWithOriginalName(blob, originalName, newFormat) {
+  const baseName = originalName.replace(/\.[^/.]+$/, '')
+  const newFileName = `${baseName}.${newFormat}`
+  const mimeType = MIME_TYPES[newFormat] || 'image/png'
+  return new File([blob], newFileName, { type: mimeType })
+}
+
+/**
  * 检查浏览器是否支持AVIF格式
  */
 function checkAvifSupport() {
@@ -26,14 +40,15 @@ function checkAvifSupport() {
  * @param {File|Blob} file - 原始图片文件
  * @param {string} targetFormat - 目标格式 (png/jpg/webp/gif/bmp/avif)
  * @param {number} quality - 质量 (0-1)，仅对jpg、webp和avif有效
- * @returns {Promise<Blob>} - 转换后的图片Blob
+ * @returns {Promise<File>} - 转换后的图片File（保留原始文件名，扩展名根据格式更新）
  */
 export async function convertImageFormat(file, targetFormat = 'png', quality = 0.92) {
   const format = targetFormat.toLowerCase()
   
   // BMP格式特殊处理 - 直接返回原始数据（如果已经是BMP）或简单转换
   if (format === 'bmp') {
-    return convertToBmp(file)
+    const bmpBlob = await convertToBmp(file)
+    return createFileWithOriginalName(bmpBlob, file.name || 'image.png', format)
   }
   
   // AVIF格式检查支持性
@@ -67,7 +82,8 @@ export async function convertImageFormat(file, targetFormat = 'png', quality = 0
         canvas.toBlob(
           (blob) => {
             if (blob) {
-              resolve(blob)
+              const resultFile = createFileWithOriginalName(blob, file.name || 'image.png', format)
+              resolve(resultFile)
             } else {
               reject(new Error('图片格式转换失败'))
             }
