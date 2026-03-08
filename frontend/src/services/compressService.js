@@ -16,19 +16,32 @@ export async function compressImage(file, options = {}) {
     maxHeight = undefined
   } = options
 
+  /**
+   * 根据质量参数计算目标文件大小
+   * browser-image-compression 主要通过 maxSizeMB 控制压缩程度
+   * initialQuality 只是初始值，库会迭代调整直到满足大小要求
+   */
+  const originalSizeMB = file.size / 1024 / 1024
+  const targetSizeMB = Math.max(0.1, originalSizeMB * quality * 0.8)
+
   const compressionOptions = {
-    maxSizeMB: 10,
-    maxWidthOrHeight: Math.max(maxWidth || 4096, maxHeight || 4096),
+    maxSizeMB: targetSizeMB,
+    maxWidthOrHeight: maxWidth || maxHeight ? Math.max(maxWidth || 1920, maxHeight || 1920) : 1920,
     useWebWorker: true,
-    initialQuality: quality
+    initialQuality: quality,
+    alwaysKeepResolution: false,
+    maxIteration: 20
   }
 
-  if (maxWidth && maxHeight) {
-    compressionOptions.maxWidthOrHeight = Math.max(maxWidth, maxHeight)
+  if (maxWidth || maxHeight) {
+    compressionOptions.maxWidthOrHeight = Math.max(maxWidth || 1920, maxHeight || 1920)
   }
 
   try {
+    console.log(`压缩前: ${originalSizeMB.toFixed(2)}MB, 目标: ${targetSizeMB.toFixed(2)}MB, 质量: ${quality}`)
     const compressedFile = await imageCompression(file, compressionOptions)
+    const compressedSizeMB = compressedFile.size / 1024 / 1024
+    console.log(`压缩后: ${compressedSizeMB.toFixed(2)}MB, 压缩率: ${((1 - compressedSizeMB / originalSizeMB) * 100).toFixed(1)}%`)
     return compressedFile
   } catch (error) {
     console.error('图片压缩失败:', error)
