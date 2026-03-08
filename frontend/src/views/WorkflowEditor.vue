@@ -4,39 +4,45 @@
     <div class="toolbar">
       <div class="toolbar-left">
         <div class="logo">
-          <el-icon :size="24" color="#409eff"><Share /></el-icon>
+          <el-icon :size="22"><Share /></el-icon>
           <span class="logo-text">ImgWorkflow</span>
         </div>
+      </div>
+      
+      <div class="toolbar-center">
         <div class="workflow-name">
           <el-input
             v-model="workflowStore.currentWorkflowName"
             size="small"
             placeholder="未命名工作流"
-            @blur="updateWorkflowName"
           />
         </div>
-      </div>
-      
-      <div class="toolbar-center">
-        <el-button type="primary" @click="executeWorkflow" :loading="workflowStore.isExecuting">
-          <el-icon><VideoPlay /></el-icon>
-          执行
-        </el-button>
-        <el-button type="success" @click="saveCurrentWorkflow">
-          <el-icon><Folder /></el-icon>
-          保存
-        </el-button>
-        <el-button @click="showWorkflowManager = true">
-          <el-icon><FolderOpened /></el-icon>
-          工作流管理
-        </el-button>
-        <el-button @click="showTemplatePanel = true">
-          <el-icon><Document /></el-icon>
-          模板
-        </el-button>
-        <el-button @click="clearWorkflow" type="danger">
+        
+        <el-button-group class="action-group">
+          <el-button type="primary" @click="executeWorkflow" :loading="workflowStore.isExecuting">
+            <el-icon><VideoPlay /></el-icon>
+            <span class="btn-text">执行</span>
+          </el-button>
+          <el-button type="success" @click="saveCurrentWorkflow">
+            <el-icon><Folder /></el-icon>
+            <span class="btn-text">保存</span>
+          </el-button>
+        </el-button-group>
+        
+        <el-button-group class="manage-group">
+          <el-button @click="showWorkflowManager = true">
+            <el-icon><FolderOpened /></el-icon>
+            <span class="btn-text">管理</span>
+          </el-button>
+          <el-button @click="showTemplatePanel = true">
+            <el-icon><Document /></el-icon>
+            <span class="btn-text">模板</span>
+          </el-button>
+        </el-button-group>
+        
+        <el-button @click="clearWorkflow" type="danger" plain>
           <el-icon><Delete /></el-icon>
-          清空
+          <span class="btn-text">清空</span>
         </el-button>
       </div>
       
@@ -44,9 +50,9 @@
         <div class="progress-info" v-if="workflowStore.isExecuting">
           <el-progress
             :percentage="workflowStore.executionProgress"
-            :stroke-width="8"
+            :stroke-width="6"
             :show-text="false"
-            style="width: 120px"
+            style="width: 100px"
           />
           <span class="progress-text">{{ workflowStore.executionProgress }}%</span>
         </div>
@@ -55,13 +61,21 @@
 
     <div class="editor-container">
       <!-- 左侧节点面板 -->
-      <div class="node-panel">
+      <div class="node-panel" :class="{ collapsed: isPanelCollapsed }">
         <div class="panel-header">
-          <el-icon><Menu /></el-icon>
-          <span>节点组件</span>
+          <el-icon v-if="!isPanelCollapsed"><Menu /></el-icon>
+          <span v-if="!isPanelCollapsed">节点组件</span>
+          <el-button
+            class="collapse-btn"
+            size="small"
+            circle
+            @click="isPanelCollapsed = !isPanelCollapsed"
+          >
+            <el-icon><component :is="isPanelCollapsed ? ArrowRight : ArrowLeft" /></el-icon>
+          </el-button>
         </div>
         
-        <div class="node-groups">
+        <div class="node-groups" v-show="!isPanelCollapsed">
           <div class="node-group">
             <div class="group-title">图片处理</div>
             <div class="node-list">
@@ -248,7 +262,9 @@ import {
   DataLine,
   SwitchFilled,
   DocumentCopy,
-  Folder
+  Folder,
+  ArrowLeft,
+  ArrowRight
 } from '@element-plus/icons-vue'
 
 const { addEdges, removeNodes, getSelectedNodes, project } = useVueFlow()
@@ -277,6 +293,7 @@ const workflowStore = useWorkflowStore()
 
 const showWorkflowManager = ref(false)
 const showTemplatePanel = ref(false)
+const isPanelCollapsed = ref(false)
 
 const contextMenu = reactive({
   visible: false,
@@ -586,23 +603,9 @@ function saveCurrentWorkflow() {
     return
   }
   
-  ElMessageBox.prompt('请输入工作流名称', '保存工作流', {
-    confirmButtonText: '保存',
-    cancelButtonText: '取消',
-    inputValue: workflowStore.currentWorkflowName,
-    inputPattern: /\S+/,
-    inputErrorMessage: '工作流名称不能为空'
-  }).then(({ value }) => {
-    workflowStore.saveCurrentWorkflow(value)
-    ElMessage.success('工作流保存成功')
-  }).catch(() => {})
-}
-
-/**
- * 更新工作流名称
- */
-function updateWorkflowName() {
-  // 名称自动保存到store
+  const name = workflowStore.currentWorkflowName.trim() || '未命名工作流'
+  workflowStore.saveCurrentWorkflow(name)
+  ElMessage.success('工作流保存成功')
 }
 
 /**
@@ -686,22 +689,23 @@ function updateNodeIdCounter(nodes) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
-  height: 60px;
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  padding: 0 20px;
+  height: 56px;
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .toolbar-left {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 20px;
 }
 
 .logo {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .logo .el-icon {
@@ -709,28 +713,38 @@ function updateNodeIdCounter(nodes) {
 }
 
 .logo-text {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
-  color: #fff;
+  color: #1e293b;
   letter-spacing: -0.5px;
 }
 
 .workflow-name {
-  width: 220px;
+  width: 180px;
 }
 
 .workflow-name :deep(.el-input__wrapper) {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
   box-shadow: none;
+  border-radius: 6px;
+}
+
+.workflow-name :deep(.el-input__wrapper:hover) {
+  border-color: #cbd5e1;
+}
+
+.workflow-name :deep(.el-input__wrapper:focus-within) {
+  border-color: #6366f1;
+  background: #fff;
 }
 
 .workflow-name :deep(.el-input__inner) {
-  color: #fff;
+  color: #1e293b;
 }
 
 .workflow-name :deep(.el-input__inner::placeholder) {
-  color: rgba(255, 255, 255, 0.5);
+  color: #94a3b8;
 }
 
 .toolbar-center {
@@ -739,59 +753,76 @@ function updateNodeIdCounter(nodes) {
   gap: 12px;
 }
 
+.toolbar-center .el-button-group {
+  display: flex;
+}
+
 .toolbar-center .el-button {
-  border-radius: 8px;
+  border-radius: 6px;
   font-weight: 500;
+  font-size: 13px;
+  padding: 8px 14px;
   transition: all 0.2s ease;
 }
 
+.toolbar-center .el-button-group .el-button {
+  border-radius: 0;
+}
+
+.toolbar-center .el-button-group .el-button:first-child {
+  border-radius: 6px 0 0 6px;
+}
+
+.toolbar-center .el-button-group .el-button:last-child {
+  border-radius: 0 6px 6px 0;
+}
+
 .toolbar-center .el-button--primary {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  border: none;
+  background: #6366f1;
+  border-color: #6366f1;
 }
 
 .toolbar-center .el-button--primary:hover {
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+  background: #4f46e5;
+  border-color: #4f46e5;
 }
 
 .toolbar-center .el-button--success {
-  background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
-  border: none;
+  background: #10b981;
+  border-color: #10b981;
 }
 
 .toolbar-center .el-button--success:hover {
-  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+  background: #059669;
+  border-color: #059669;
 }
 
-.toolbar-center .el-button--danger {
-  background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
-  border: none;
+.toolbar-center .el-button--danger.is-plain {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #ef4444;
 }
 
-.toolbar-center .el-button--danger:hover {
-  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+.toolbar-center .el-button--danger.is-plain:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #dc2626;
 }
 
-.toolbar-center .el-button:not(.el-button--primary):not(.el-button--success):not(.el-button--danger) {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #fff;
+.manage-group .el-button {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #475569;
 }
 
-.toolbar-center .el-button:not(.el-button--primary):not(.el-button--success):not(.el-button--danger):hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.3);
-  transform: translateY(-1px);
+.manage-group .el-button:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #334155;
 }
 
 .toolbar-right {
-  min-width: 160px;
+  min-width: 140px;
   display: flex;
   justify-content: flex-end;
 }
@@ -799,16 +830,73 @@ function updateNodeIdCounter(nodes) {
 .progress-info {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
+  gap: 10px;
+  padding: 6px 12px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 6px;
 }
 
 .progress-text {
-  font-size: 13px;
-  color: #fff;
-  font-weight: 500;
+  font-size: 12px;
+  color: #16a34a;
+  font-weight: 600;
+  min-width: 32px;
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+  .workflow-name {
+    width: 140px;
+  }
+  
+  .toolbar-center .el-button {
+    padding: 8px 10px;
+  }
+  
+  .btn-text {
+    display: none;
+  }
+  
+  .toolbar-center .el-button {
+    padding: 8px 12px;
+  }
+}
+
+@media (max-width: 900px) {
+  .toolbar {
+    padding: 0 12px;
+  }
+  
+  .toolbar-left {
+    gap: 12px;
+  }
+  
+  .logo-text {
+    display: none;
+  }
+  
+  .workflow-name {
+    width: 120px;
+  }
+  
+  .toolbar-center {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 600px) {
+  .workflow-name {
+    display: none;
+  }
+  
+  .toolbar-right {
+    min-width: auto;
+  }
+  
+  .progress-info {
+    padding: 4px 8px;
+  }
 }
 
 .editor-container {
@@ -823,18 +911,45 @@ function updateNodeIdCounter(nodes) {
   border-right: 1px solid #e2e8f0;
   display: flex;
   flex-direction: column;
+  transition: width 0.3s ease;
+}
+
+.node-panel.collapsed {
+  width: 48px;
 }
 
 .panel-header {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 20px;
+  padding: 16px;
   font-size: 15px;
   font-weight: 600;
   color: #1e293b;
   border-bottom: 1px solid #e2e8f0;
   background: #fff;
+}
+
+.node-panel.collapsed .panel-header {
+  padding: 12px;
+  justify-content: center;
+}
+
+.collapse-btn {
+  margin-left: auto;
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #64748b;
+}
+
+.collapse-btn:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #475569;
+}
+
+.node-panel.collapsed .collapse-btn {
+  margin-left: 0;
 }
 
 .node-groups {

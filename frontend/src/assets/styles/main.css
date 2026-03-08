@@ -41,21 +41,11 @@ html, body {
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.4), 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
-/* 连线样式优化 - 更明显 */
+/* 连线样式优化 - 统一样式 */
 .vue-flow__edge-path {
-  stroke: #6366f1;
-  stroke-width: 5;
+  stroke: #4f46e5 !important;
+  stroke-width: 6 !important;
   transition: all 0.2s ease;
-}
-
-.vue-flow__edge:hover .vue-flow__edge-path {
-  stroke: #4f46e5;
-  stroke-width: 6;
-}
-
-.vue-flow__edge.selected .vue-flow__edge-path {
-  stroke: #4f46e5;
-  stroke-width: 6;
 }
 
 /* 连线动画效果 */
@@ -118,8 +108,8 @@ html, body {
 
 /* 连接线预览样式 */
 .vue-flow__connection-line {
-  stroke: #6366f1;
-  stroke-width: 5;
+  stroke: #4f46e5 !important;
+  stroke-width: 6 !important;
   stroke-dasharray: 5;
 }
 
