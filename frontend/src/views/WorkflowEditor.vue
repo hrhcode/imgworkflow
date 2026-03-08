@@ -45,6 +45,7 @@
           v-model:edges="workflowStore.edges"
           @node-click="onNodeClick"
           @edge-click="onEdgeClick"
+          @connect="onConnect"
           :default-viewport="{ zoom: 1 }"
           :min-zoom="0.2"
           :max-zoom="4"
@@ -91,7 +92,7 @@
  * 工作流编辑器主页面
  */
 import { ref } from 'vue'
-import { VueFlow } from '@vue-flow/core'
+import { VueFlow, useVueFlow } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
 import '@vue-flow/core/dist/style.css'
@@ -99,6 +100,8 @@ import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/controls/dist/style.css'
 import { useWorkflowStore } from '@/stores/workflow'
 import { ElMessage } from 'element-plus'
+
+const { addEdges } = useVueFlow()
 
 // 节点组件
 import UploadNode from '@/components/nodes/UploadNode.vue'
@@ -208,6 +211,13 @@ function onEdgeClick(event) {
 }
 
 /**
+ * 创建连线
+ */
+function onConnect(params) {
+  addEdges([params])
+}
+
+/**
  * 更新节点配置
  */
 function updateNodeConfig(data) {
@@ -224,7 +234,7 @@ function executeWorkflow() {
     ElMessage.warning('请先添加节点')
     return
   }
-  ElMessage.info('工作流执行功能开发中...')
+  workflowStore.executeWorkflow()
 }
 
 /**
@@ -242,11 +252,29 @@ function saveWorkflow() {
 function loadWorkflow() {
   const saved = localStorage.getItem('savedWorkflow')
   if (saved) {
-    workflowStore.importWorkflow(JSON.parse(saved))
+    const workflow = JSON.parse(saved)
+    workflowStore.importWorkflow(workflow)
+    nodeId = updateNodeIdCounter(workflow.nodes)
     ElMessage.success('工作流已加载')
   } else {
     ElMessage.warning('没有已保存的工作流')
   }
+}
+
+/**
+ * 更新节点ID计数器
+ */
+function updateNodeIdCounter(nodes) {
+  if (!nodes || nodes.length === 0) return 0
+  let maxId = 0
+  for (const node of nodes) {
+    const match = node.id.match(/node_(\d+)/)
+    if (match) {
+      const id = parseInt(match[1])
+      if (id > maxId) maxId = id
+    }
+  }
+  return maxId
 }
 
 /**

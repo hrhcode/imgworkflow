@@ -5,7 +5,6 @@ import { convertImageFormat } from '@/services/convertService'
 import { exportMermaidToImage } from '@/services/mermaidService'
 import { getPlantUMLBlob } from '@/services/plantumlService'
 import { downloadFile, downloadAsZip } from '@/services/downloadService'
-import { getImage } from '@/services/storageService'
 import { ElMessage } from 'element-plus'
 
 /**
@@ -243,24 +242,31 @@ export const useWorkflowStore = defineStore('workflow', () => {
         return data.files || []
       
       case 'compress':
-        // 压缩节点：压缩输入的图片
+        if (inputData.length === 0) {
+          addLog('压缩节点没有输入数据', 'warning')
+          return []
+        }
         const compressedImages = []
         for (const file of inputData) {
           try {
             const compressed = await compressImage(file, {
               quality: (data.quality || 80) / 100,
               maxWidth: data.width,
-              maxHeight: data.height
+              maxHeight: data.height,
+              keepAspectRatio: data.keepAspectRatio !== false
             })
             compressedImages.push(compressed)
           } catch (error) {
-            console.error('压缩失败:', error)
+            addLog(`压缩图片失败: ${error.message}`, 'error')
           }
         }
         return compressedImages
       
       case 'convert':
-        // 格式转换节点
+        if (inputData.length === 0) {
+          addLog('格式转换节点没有输入数据', 'warning')
+          return []
+        }
         const convertedImages = []
         for (const file of inputData) {
           try {
@@ -271,56 +277,59 @@ export const useWorkflowStore = defineStore('workflow', () => {
             )
             convertedImages.push(converted)
           } catch (error) {
-            console.error('转换失败:', error)
+            addLog(`转换图片失败: ${error.message}`, 'error')
           }
         }
         return convertedImages
       
       case 'plantuml':
-        // PlantUML节点
-        if (data.code) {
-          try {
-            const blob = await getPlantUMLBlob(data.code, 'png')
-            return [blob]
-          } catch (error) {
-            console.error('PlantUML渲染失败:', error)
-            return []
-          }
+        if (!data.code) {
+          addLog('PlantUML节点没有配置代码', 'warning')
+          return []
         }
-        return []
+        try {
+          const blob = await getPlantUMLBlob(data.code, 'png')
+          addLog('PlantUML渲染成功', 'success')
+          return [blob]
+        } catch (error) {
+          addLog(`PlantUML渲染失败: ${error.message}`, 'error')
+          return []
+        }
       
       case 'mermaid':
-        // Mermaid节点
-        if (data.code) {
-          try {
-            const blob = await exportMermaidToImage(data.code, data.outputFormat || 'png')
-            return [blob]
-          } catch (error) {
-            console.error('Mermaid渲染失败:', error)
-            return []
-          }
+        if (!data.code) {
+          addLog('Mermaid节点没有配置代码', 'warning')
+          return []
         }
-        return []
+        try {
+          const blob = await exportMermaidToImage(data.code, data.outputFormat || 'png')
+          addLog('Mermaid渲染成功', 'success')
+          return [blob]
+        } catch (error) {
+          addLog(`Mermaid渲染失败: ${error.message}`, 'error')
+          return []
+        }
       
       case 'download':
-        // 下载节点
-        if (inputData.length > 0) {
-          if (data.downloadMode === 'single') {
-            // 单张下载
-            for (let i = 0; i < inputData.length; i++) {
-              const file = inputData[i]
-              const ext = data.format || 'png'
-              downloadFile(file, `image_${i + 1}.${ext}`)
-            }
-          } else {
-            // 批量打包下载
-            const prefix = data.filePrefix || 'images'
-            const files = inputData.map((file, i) => ({
-              blob: file,
-              name: `${prefix}_${i + 1}.${data.format || 'png'}`
-            }))
-            await downloadAsZip(files, `${prefix}.zip`)
+        if (inputData.length === 0) {
+          addLog('下载节点没有输入数据', 'warning')
+          return []
+        }
+        if (data.downloadMode === 'single') {
+          for (let i = 0; i < inputData.length; i++) {
+            const file = inputData[i]
+            const ext = data.format || 'png'
+            downloadFile(file, `image_${i + 1}.${ext}`)
           }
+          addLog(`已下载 ${inputData.length} 张图片`, 'success')
+        } else {
+          const prefix = data.filePrefix || 'images'
+          const files = inputData.map((file, i) => ({
+            blob: file,
+            name: `${prefix}_${i + 1}.${data.format || 'png'}`
+          }))
+          await downloadAsZip(files, `${prefix}.zip`)
+          addLog(`已打包下载 ${inputData.length} 张图片`, 'success')
         }
         return inputData
       
