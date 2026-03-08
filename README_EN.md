@@ -17,6 +17,7 @@
 </p>
 
 <p align="center">
+  <a href="http://hrhcode.com:5175/" target="_blank">🌐 Live Demo</a> •
   <a href="#features">Features</a> •
   <a href="#screenshots">Screenshots</a> •
   <a href="#quick-start">Quick Start</a> •
@@ -30,19 +31,19 @@
 
 ### 📷 Image Processing Nodes
 
-| Node | Description |
-|------|-------------|
-| **Image Upload** | Batch upload image files, supports JPG, PNG, WebP, GIF, BMP, AVIF formats |
+| Node                  | Description                                                                                     |
+| --------------------- | ----------------------------------------------------------------------------------------------- |
+| **Image Upload**      | Batch upload image files, supports JPG, PNG, WebP, GIF, BMP, AVIF formats                       |
 | **Image Compression** | Adjustable compression quality and size limits, preset compression levels and custom parameters |
-| **Format Conversion** | Convert between PNG, JPG, WebP, GIF, BMP, AVIF formats with adjustable output quality |
-| **Image Download** | Single file download or ZIP package download with customizable file prefix |
+| **Format Conversion** | Convert between PNG, JPG, WebP, GIF, BMP, AVIF formats with adjustable output quality           |
+| **Image Download**    | Single file download or ZIP package download with customizable file prefix                      |
 
 ### 📊 Text Diagram Nodes
 
-| Node | Description |
-|------|-------------|
-| **Mermaid** | Create flowcharts, sequence diagrams, Gantt charts using Mermaid syntax, supports PNG/SVG output |
-| **PlantUML** | Create UML diagrams using PlantUML syntax, supports PNG/SVG output |
+| Node         | Description                                                                                      |
+| ------------ | ------------------------------------------------------------------------------------------------ |
+| **Mermaid**  | Create flowcharts, sequence diagrams, Gantt charts using Mermaid syntax, supports PNG/SVG output |
+| **PlantUML** | Create UML diagrams using PlantUML syntax, supports PNG/SVG output                               |
 
 ### 🔧 Workflow Features
 
@@ -124,35 +125,35 @@ npm run preview
 
 The system provides the following preset templates for quick start:
 
-| Template Name | Description |
-|---------------|-------------|
-| Image Processing Pipeline | Complete image processing flow: Upload → Convert → Compress → Download |
-| Image Compression Download | Upload images, compress and download |
-| Format Conversion Download | Upload images, convert format and download |
-| PlantUML Diagram Download | Create diagrams using PlantUML syntax and download |
-| Mermaid Diagram Download | Create diagrams using Mermaid syntax and download |
+| Template Name              | Description                                                            |
+| -------------------------- | ---------------------------------------------------------------------- |
+| Image Processing Pipeline  | Complete image processing flow: Upload → Convert → Compress → Download |
+| Image Compression Download | Upload images, compress and download                                   |
+| Format Conversion Download | Upload images, convert format and download                             |
+| PlantUML Diagram Download  | Create diagrams using PlantUML syntax and download                     |
+| Mermaid Diagram Download   | Create diagrams using Mermaid syntax and download                      |
 
 ### Keyboard Shortcuts
 
-| Shortcut | Function |
-|----------|----------|
+| Shortcut               | Function             |
+| ---------------------- | -------------------- |
 | `Delete` / `Backspace` | Delete selected node |
 
 ---
 
 ## Tech Stack
 
-| Category | Technology |
-|----------|------------|
-| **Frontend Framework** | Vue 3 + Composition API |
-| **State Management** | Pinia |
-| **UI Components** | Element Plus |
-| **Flowchart Editor** | Vue Flow |
-| **Build Tool** | Vite |
-| **Image Compression** | browser-image-compression |
-| **Diagram Rendering** | Mermaid, PlantUML |
-| **File Packaging** | JSZip |
-| **Local Storage** | IndexedDB (idb) |
+| Category               | Technology                |
+| ---------------------- | ------------------------- |
+| **Frontend Framework** | Vue 3 + Composition API   |
+| **State Management**   | Pinia                     |
+| **UI Components**      | Element Plus              |
+| **Flowchart Editor**   | Vue Flow                  |
+| **Build Tool**         | Vite                      |
+| **Image Compression**  | browser-image-compression |
+| **Diagram Rendering**  | Mermaid, PlantUML         |
+| **File Packaging**     | JSZip                     |
+| **Local Storage**      | IndexedDB (idb)           |
 
 ---
 
@@ -198,12 +199,12 @@ imgworkflow/
 
 ## Browser Support
 
-| Browser | Support |
-|---------|---------|
-| Chrome | ✅ Recommended |
-| Firefox | ✅ Supported |
-| Safari | ✅ Supported |
-| Edge | ✅ Supported |
+| Browser | Support        |
+| ------- | -------------- |
+| Chrome  | ✅ Recommended |
+| Firefox | ✅ Supported   |
+| Safari  | ✅ Supported   |
+| Edge    | ✅ Supported   |
 
 ---
 
