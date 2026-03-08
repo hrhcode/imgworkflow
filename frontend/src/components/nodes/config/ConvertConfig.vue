@@ -178,6 +178,10 @@ watch([format, quality], () => {
   padding: 0;
 }
 
+:deep(.el-form-item__label) {
+  color: var(--text-primary);
+}
+
 .format-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -190,22 +194,22 @@ watch([format, quality], () => {
   flex-direction: column;
   align-items: center;
   padding: 10px 6px;
-  border: 2px solid #e4e7ed;
+  border: 2px solid var(--border-primary);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
-  background: #fff;
+  background: var(--bg-secondary);
 }
 
 .format-card:hover {
-  border-color: #c0c4cc;
+  border-color: var(--border-secondary);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
 }
 
 .format-card.active {
-  border-color: #409eff;
-  background: #ecf5ff;
+  border-color: var(--color-primary);
+  background: var(--bg-hover);
 }
 
 .format-icon {
@@ -224,13 +228,13 @@ watch([format, quality], () => {
 .format-name {
   font-size: 12px;
   font-weight: 600;
-  color: #303133;
+  color: var(--text-primary);
   margin-bottom: 2px;
 }
 
 .format-desc {
   font-size: 10px;
-  color: #909399;
+  color: var(--text-tertiary);
 }
 
 .quality-section {

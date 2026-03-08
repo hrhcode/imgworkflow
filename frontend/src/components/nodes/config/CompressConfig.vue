@@ -257,6 +257,10 @@ watch([compressLevel, isAdvanced, customQuality, customMaxSizeRatio, customMaxWi
   margin-bottom: 16px;
 }
 
+:deep(.el-form-item__label) {
+  color: var(--text-primary);
+}
+
 .level-group {
   width: 100%;
   display: grid;
@@ -272,16 +276,18 @@ watch([compressLevel, isAdvanced, customQuality, customMaxSizeRatio, customMaxWi
   width: 100%;
   padding: 8px 4px;
   border-radius: 8px !important;
-  border: 1px solid #dcdfe6 !important;
+  border: 1px solid var(--border-primary) !important;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
 }
 
 .level-group :deep(.el-radio-button.is-active .el-radio-button__inner) {
-  border-color: #409eff !important;
-  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.3);
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
 }
 
 .level-group :deep(.el-radio-button.is-disabled .el-radio-button__inner) {
-  background-color: #f5f7fa;
+  background-color: var(--bg-tertiary);
   opacity: 0.6;
 }
 
@@ -299,7 +305,7 @@ watch([compressLevel, isAdvanced, customQuality, customMaxSizeRatio, customMaxWi
 
 .level-desc {
   font-size: 10px;
-  color: #909399;
+  color: var(--text-tertiary);
 }
 
 .level-group :deep(.el-radio-button.is-active .level-desc) {
@@ -312,20 +318,24 @@ watch([compressLevel, isAdvanced, customQuality, customMaxSizeRatio, customMaxWi
   gap: 8px;
   margin-bottom: 16px;
   padding: 10px 12px;
-  background: #f5f7fa;
+  background: var(--bg-secondary);
   border-radius: 8px;
 }
 
+.advanced-toggle :deep(.el-checkbox__label) {
+  color: var(--text-primary);
+}
+
 .help-icon {
-  color: #909399;
+  color: var(--text-tertiary);
   cursor: help;
 }
 
 .advanced-settings {
   padding: 16px;
-  background: #fafafa;
+  background: var(--bg-secondary);
   border-radius: 8px;
-  border: 1px solid #ebeef5;
+  border: 1px solid var(--border-primary);
   margin-bottom: 16px;
 }
 
@@ -340,13 +350,13 @@ watch([compressLevel, isAdvanced, customQuality, customMaxSizeRatio, customMaxWi
   display: flex;
   justify-content: space-between;
   font-size: 10px;
-  color: #909399;
+  color: var(--text-tertiary);
   margin-top: 4px;
 }
 
 .setting-desc {
   font-size: 11px;
-  color: #909399;
+  color: var(--text-tertiary);
   margin-top: 4px;
 }
 

@@ -81,16 +81,27 @@ async function preview() {
 :deep(.el-textarea__inner) {
   font-family: monospace;
   font-size: 12px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--border-primary);
+}
+
+:deep(.el-textarea__inner:focus) {
+  border-color: var(--border-focus);
 }
 
 .preview-area {
   margin-top: 12px;
   text-align: center;
+  padding: 12px;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border-primary);
 }
 
 .preview-area img {
   max-width: 100%;
-  border: 1px solid #e4e7ed;
+  border: 1px solid var(--border-primary);
   border-radius: 4px;
 }
 

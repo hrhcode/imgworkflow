@@ -90,16 +90,40 @@ async function preview() {
 :deep(.el-textarea__inner) {
   font-family: monospace;
   font-size: 12px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--border-primary);
+}
+
+:deep(.el-textarea__inner:focus) {
+  border-color: var(--border-focus);
 }
 
 :deep(.el-select) {
   width: 100%;
 }
 
+:deep(.el-select .el-input__wrapper) {
+  background: var(--bg-secondary);
+  border-color: var(--border-primary);
+}
+
+:deep(.el-select .el-input__inner) {
+  color: var(--text-primary);
+}
+
+:deep(.el-form-item__label) {
+  color: var(--text-primary);
+}
+
 .preview-area {
   margin-top: 12px;
   text-align: center;
   overflow: auto;
+  padding: 12px;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border-primary);
 }
 
 .preview-area :deep(svg) {
