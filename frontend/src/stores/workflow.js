@@ -17,6 +17,8 @@ export const useWorkflowStore = defineStore('workflow', () => {
   const edges = ref([])
   // 当前选中的节点ID
   const selectedNodeId = ref(null)
+  // 节点ID计数器
+  let nodeIdCounter = 0
   // 工作流执行状态
   const isExecuting = ref(false)
   // 执行进度
@@ -34,6 +36,32 @@ export const useWorkflowStore = defineStore('workflow', () => {
   const selectedNode = computed(() => {
     return nodes.value.find(node => node.id === selectedNodeId.value)
   })
+
+  /**
+   * 生成唯一的节点ID
+   */
+  function generateNodeId() {
+    return `node_${++nodeIdCounter}`
+  }
+
+  /**
+   * 更新节点ID计数器（确保新节点ID不会与现有节点冲突）
+   */
+  function updateNodeIdCounter() {
+    if (nodes.value.length === 0) {
+      nodeIdCounter = 0
+      return
+    }
+    let maxId = 0
+    for (const node of nodes.value) {
+      const match = node.id.match(/node_(\d+)/)
+      if (match) {
+        const id = parseInt(match[1])
+        if (id > maxId) maxId = id
+      }
+    }
+    nodeIdCounter = maxId
+  }
 
   /**
    * 加载已保存的工作流列表
@@ -90,6 +118,7 @@ export const useWorkflowStore = defineStore('workflow', () => {
       edges.value = workflow.edges || []
       currentWorkflowName.value = workflow.name
       selectedNodeId.value = null
+      updateNodeIdCounter()
       return true
     }
     return false
@@ -198,6 +227,7 @@ export const useWorkflowStore = defineStore('workflow', () => {
     isExecuting.value = false
     executionProgress.value = 0
     executionLogs.value = []
+    nodeIdCounter = 0
   }
 
   /**
@@ -548,6 +578,7 @@ function cleanupExecution() {
     executionLogs,
     currentWorkflowName,
     savedWorkflows,
+    generateNodeId,
     loadSavedWorkflows,
     saveCurrentWorkflow,
     loadWorkflow,

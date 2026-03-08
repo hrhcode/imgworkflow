@@ -240,7 +240,7 @@
     </div>
     
     <!-- 工作流管理面板 -->
-    <WorkflowManager v-model="showWorkflowManager" @load="onLoadWorkflow" />
+    <WorkflowManager v-model="showWorkflowManager" />
     
     <!-- 模板选择面板 -->
     <TemplatePanel v-model="showTemplatePanel" @select="onSelectTemplate" />
@@ -280,7 +280,7 @@ import {
   ArrowRight
 } from '@element-plus/icons-vue'
 
-const { addEdges, removeNodes, getSelectedNodes, project } = useVueFlow()
+const { addEdges, removeEdges, removeNodes, getSelectedNodes, project } = useVueFlow()
 
 // 节点组件
 import UploadNode from '@/components/nodes/UploadNode.vue'
@@ -355,8 +355,6 @@ const configPanels = {
   download: DownloadConfig
 }
 
-let nodeId = 0
-
 onMounted(() => {
   workflowStore.loadSavedWorkflows()
   document.addEventListener('click', hideContextMenu)
@@ -382,33 +380,24 @@ function onDragStart(event, nodeType) {
 }
 
 /**
- * 拖拽放置 - 优化位置计算
+ * 拖拽放置 - 使用鼠标实际位置
  */
 function onDrop(event) {
   const type = event.dataTransfer.getData('application/vueflow')
   if (!type) return
 
-  // 使用VueFlow的project方法转换坐标
   const bounds = event.target.closest('.vue-flow')?.getBoundingClientRect()
   if (!bounds) return
 
-  // 计算已有节点的最右侧位置
-  let baseX = 50
-  let baseY = 150
-  
-  if (workflowStore.nodes.length > 0) {
-    const lastNode = workflowStore.nodes[workflowStore.nodes.length - 1]
-    baseX = lastNode.position.x + 220 // 节点宽度 + 间距
-    baseY = lastNode.position.y
-  }
+  // 计算鼠标相对于画布容器的位置
+  const x = event.clientX - bounds.left
+  const y = event.clientY - bounds.top
 
-  const position = {
-    x: baseX,
-    y: baseY
-  }
+  // 使用VueFlow的project方法转换坐标（考虑缩放和平移）
+  const position = project({ x, y })
 
   const newNode = {
-    id: `node_${++nodeId}`,
+    id: workflowStore.generateNodeId(),
     type,
     position,
     data: getDefaultNodeData(type)
@@ -456,9 +445,64 @@ function onPaneClick() {
 }
 
 /**
- * 创建连线
+ * 检测是否会形成循环引用
+ * @param {string} source - 连线起点
+ * @param {string} target - 连线终点
+ * @returns {boolean} - 如果会形成循环返回 true
+ */
+function wouldCreateCycle(source, target) {
+  // 如果 source 和 target 是同一个节点，直接返回 true
+  if (source === target) return true
+  
+  // 使用 BFS 检测从 target 出发是否能到达 source
+  const visited = new Set()
+  const queue = [target]
+  
+  while (queue.length > 0) {
+    const current = queue.shift()
+    
+    if (current === source) return true
+    
+    if (visited.has(current)) continue
+    visited.add(current)
+    
+    // 找到从 current 节点出发的所有连线
+    for (const edge of workflowStore.edges) {
+      if (edge.source === current && !visited.has(edge.target)) {
+        queue.push(edge.target)
+      }
+    }
+  }
+  
+  return false
+}
+
+/**
+ * 创建连线 - 单叉连接限制
+ * 每个节点的输出端只能连接一个节点
+ * 每个节点的输入端只能连接一个节点
+ * 不允许形成循环引用
  */
 function onConnect(params) {
+  const { source, target } = params
+  
+  // 检测是否会形成循环引用
+  if (wouldCreateCycle(source, target)) {
+    ElMessage.warning('不允许形成循环连接')
+    return
+  }
+  
+  // 找出需要移除的连线
+  const edgesToRemove = workflowStore.edges.filter(
+    edge => edge.source === source || edge.target === target
+  )
+  
+  // 使用 VueFlow 的 removeEdges 方法移除连线
+  if (edgesToRemove.length > 0) {
+    removeEdges(edgesToRemove)
+  }
+  
+  // 添加新连线
   addEdges([params])
 }
 
@@ -644,16 +688,8 @@ function clearWorkflow() {
     }
   ).then(() => {
     workflowStore.clearWorkflow()
-    nodeId = 0
     ElMessage.success('工作流已清空')
   }).catch(() => {})
-}
-
-/**
- * 加载工作流回调
- */
-function onLoadWorkflow(workflow) {
-  nodeId = updateNodeIdCounter(workflow.nodes)
 }
 
 /**
@@ -663,9 +699,15 @@ function onSelectTemplate(template) {
   workflowStore.clearWorkflow()
   workflowStore.currentWorkflowName = template.name
   
+  const nodeIdMap = {}
+  
   template.nodes.forEach((node, index) => {
+    const newId = workflowStore.generateNodeId()
+    const oldId = `node_${index + 1}`
+    nodeIdMap[oldId] = newId
+    
     workflowStore.addNode({
-      id: `node_${++nodeId}`,
+      id: newId,
       type: node.type,
       position: node.position,
       data: getDefaultNodeData(node.type)
@@ -673,27 +715,17 @@ function onSelectTemplate(template) {
   })
   
   template.edges.forEach(edge => {
-    workflowStore.addEdge(edge)
+    workflowStore.addEdge({
+      ...edge,
+      source: nodeIdMap[edge.source] || edge.source,
+      target: nodeIdMap[edge.target] || edge.target
+    })
   })
   
   ElMessage.success(`已加载模板：${template.name}`)
 }
 
-/**
- * 更新节点ID计数器
- */
-function updateNodeIdCounter(nodes) {
-  if (!nodes || nodes.length === 0) return 0
-  let maxId = 0
-  for (const node of nodes) {
-    const match = node.id.match(/node_(\d+)/)
-    if (match) {
-      const id = parseInt(match[1])
-      if (id > maxId) maxId = id
-    }
-  }
-  return maxId
-}
+
 </script>
 
 <style scoped>
