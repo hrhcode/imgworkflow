@@ -32,3 +32,6 @@ Thumbs.db
 .env
 .env.local
 .env.*.local
+
+# Trae配置目录
+.trae/
