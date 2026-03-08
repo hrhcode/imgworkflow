@@ -58,13 +58,15 @@ defineProps({
 
 .node-content {
   padding: 12px;
+  background: var(--bg-secondary);
+  border-radius: 0 0 10px 10px;
 }
 
 .code-preview {
   font-family: 'Consolas', 'Monaco', monospace;
   font-size: 11px;
-  color: var(--text-tertiary);
-  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  background: var(--bg-tertiary);
   padding: 10px;
   border-radius: 6px;
   white-space: nowrap;

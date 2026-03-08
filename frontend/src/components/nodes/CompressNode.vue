@@ -95,6 +95,8 @@ const levelClass = computed(() => {
   flex-direction: column;
   align-items: center;
   gap: 6px;
+  background: var(--bg-secondary);
+  border-radius: 0 0 10px 10px;
 }
 
 .level-badge {
@@ -136,7 +138,7 @@ const levelClass = computed(() => {
   gap: 4px;
   font-size: 10px;
   color: #8b5cf6;
-  background: var(--bg-secondary);
+  background: var(--bg-tertiary);
   padding: 2px 8px;
   border-radius: 4px;
 }

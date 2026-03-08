@@ -62,10 +62,12 @@ defineProps({
 
 .node-content {
   padding: 16px 14px;
+  background: var(--bg-secondary);
+  border-radius: 0 0 10px 10px;
 }
 
 .placeholder {
-  color: var(--text-placeholder);
+  color: var(--text-secondary);
   font-size: 12px;
   text-align: center;
 }

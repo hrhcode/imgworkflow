@@ -206,12 +206,12 @@
           <template #node-download="{ data }">
             <DownloadNode :data="data" />
           </template>
-          <Background :variant="BackgroundVariant.Lines" :gap="24" :size="0.5" :color="'#cbd5e1'" />
+          <Background :variant="BackgroundVariant.Lines" :gap="24" :size="0.5" :color="themeStore.isDark ? '#334155' : '#cbd5e1'" />
           <Controls />
         </VueFlow>
         
         <div class="canvas-tip" v-if="workflowStore.nodes.length === 0">
-          <el-icon :size="48" color="#c0c4cc"><Plus /></el-icon>
+          <el-icon :size="48" :color="themeStore.isDark ? '#475569' : '#c0c4cc'"><Plus /></el-icon>
           <p>从左侧拖拽节点到此处开始创建工作流</p>
           <p class="tip-sub">或点击上方"模板"按钮选择预设模板</p>
         </div>

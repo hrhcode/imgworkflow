@@ -61,6 +61,8 @@ defineProps({
   padding: 16px 14px;
   display: flex;
   justify-content: center;
+  background: var(--bg-secondary);
+  border-radius: 0 0 10px 10px;
 }
 
 .format-badge {
