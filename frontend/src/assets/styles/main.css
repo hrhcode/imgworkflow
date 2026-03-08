@@ -82,30 +82,15 @@ html, body {
 }
 
 .vue-flow__handle:hover {
-  width: 18px !important;
-  height: 18px !important;
-  transform: scale(1.2);
   box-shadow: 0 4px 12px rgba(99, 102, 241, 0.5);
 }
 
 .vue-flow__handle.connecting {
-  width: 18px !important;
-  height: 18px !important;
   box-shadow: 0 4px 16px rgba(99, 102, 241, 0.6);
-  animation: pulse 1s ease infinite;
 }
 
 .vue-flow__handle.valid {
   box-shadow: 0 4px 16px rgba(34, 197, 94, 0.6);
-}
-
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.2);
-  }
 }
 
 /* 控制面板样式 */
