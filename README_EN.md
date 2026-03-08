@@ -88,7 +88,7 @@ npm install
 npm run dev
 ```
 
-Visit http://localhost:3000 to view the application
+Visit http://localhost:5175 to view the application
 
 ### Build for Production
 
