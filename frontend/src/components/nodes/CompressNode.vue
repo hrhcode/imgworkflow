@@ -1,7 +1,7 @@
 <template>
   <div class="workflow-node compress-node">
     <div class="node-header">
-      <el-icon><Compress /></el-icon>
+      <el-icon><DocumentCopy /></el-icon>
       <span>图片压缩</span>
     </div>
     <div class="node-content">
@@ -36,26 +36,26 @@ defineProps({
 <style scoped>
 .workflow-node {
   background: #fff;
-  border: 2px solid #67c23a;
+  border: 2px solid #10b981;
   border-radius: 12px;
   min-width: 160px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
   transition: all 0.2s ease;
 }
 
 .workflow-node:hover {
-  box-shadow: 0 4px 20px rgba(103, 194, 58, 0.2);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.25);
 }
 
 .node-header {
   display: flex;
   align-items: center;
   padding: 10px 14px;
-  background: linear-gradient(135deg, #67c23a 0%, #85ce61 100%);
+  background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
   color: #fff;
   border-radius: 10px 10px 0 0;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .node-header .el-icon {
@@ -74,30 +74,28 @@ defineProps({
 }
 
 .info-item .label {
-  color: #909399;
+  color: #64748b;
 }
 
 .info-item .value {
-  color: #333;
-  font-weight: 500;
+  color: #1e293b;
+  font-weight: 600;
 }
 
-/* 增大Handle感应区域 */
 .handle-target,
 .handle-source {
-  width: 16px !important;
-  height: 16px !important;
-  background: #67c23a !important;
+  width: 14px !important;
+  height: 14px !important;
+  background: #10b981 !important;
   border: 3px solid #fff !important;
-  box-shadow: 0 2px 8px rgba(103, 194, 58, 0.4);
-  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
 }
 
 .handle-target:hover,
 .handle-source:hover {
-  width: 20px !important;
-  height: 20px !important;
-  background: #85ce61 !important;
-  box-shadow: 0 4px 12px rgba(103, 194, 58, 0.6);
+  width: 18px !important;
+  height: 18px !important;
+  background: #34d399 !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.6);
 }
 </style>

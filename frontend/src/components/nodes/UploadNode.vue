@@ -5,7 +5,7 @@
       <span>图片上传</span>
     </div>
     <div class="node-content">
-      <div v-if="data.files.length === 0" class="placeholder">
+      <div v-if="!data.files?.length" class="placeholder">
         点击配置上传图片
       </div>
       <div v-else class="file-info">
@@ -34,26 +34,26 @@ defineProps({
 <style scoped>
 .workflow-node {
   background: #fff;
-  border: 2px solid #409eff;
+  border: 2px solid #3b82f6;
   border-radius: 12px;
   min-width: 180px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
   transition: all 0.2s ease;
 }
 
 .workflow-node:hover {
-  box-shadow: 0 4px 20px rgba(64, 158, 255, 0.2);
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.25);
 }
 
 .node-header {
   display: flex;
   align-items: center;
   padding: 10px 14px;
-  background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
   color: #fff;
   border-radius: 10px 10px 0 0;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .node-header .el-icon {
@@ -65,7 +65,7 @@ defineProps({
 }
 
 .placeholder {
-  color: #909399;
+  color: #94a3b8;
   font-size: 12px;
   text-align: center;
 }
@@ -74,8 +74,9 @@ defineProps({
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #67c23a;
+  color: #10b981;
   font-size: 14px;
+  font-weight: 500;
 }
 
 .file-info .el-icon {
@@ -83,20 +84,18 @@ defineProps({
   font-size: 20px;
 }
 
-/* 增大Handle感应区域 */
 .handle-source {
-  width: 16px !important;
-  height: 16px !important;
-  background: #409eff !important;
+  width: 14px !important;
+  height: 14px !important;
+  background: #3b82f6 !important;
   border: 3px solid #fff !important;
-  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.4);
-  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
 }
 
 .handle-source:hover {
-  width: 20px !important;
-  height: 20px !important;
-  background: #66b1ff !important;
-  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.6);
+  width: 18px !important;
+  height: 18px !important;
+  background: #60a5fa !important;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.6);
 }
 </style>

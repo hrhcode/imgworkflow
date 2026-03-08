@@ -10,7 +10,7 @@ html, body {
   font-family: 'Microsoft YaHei', 'PingFang SC', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-size: 14px;
   color: #333;
-  background-color: #f5f7fa;
+  background-color: #f0f2f5;
 }
 
 #app {
@@ -20,138 +20,160 @@ html, body {
 
 /* Vue Flow 样式优化 */
 .vue-flow {
-  background-color: #f5f7fa;
+  background-color: #f8fafc;
   background-image: 
-    radial-gradient(circle, #e0e3e8 1px, transparent 1px);
-  background-size: 20px 20px;
+    linear-gradient(rgba(148, 163, 184, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.1) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
 .vue-flow__node {
   border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   transition: all 0.2s ease;
 }
 
 .vue-flow__node:hover {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 .vue-flow__node.selected {
-  box-shadow: 0 0 0 3px rgba(64, 158, 255, 0.3);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.4), 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
-/* 连线样式优化 */
+/* 连线样式优化 - 更明显 */
 .vue-flow__edge-path {
-  stroke: #b1b1b7;
+  stroke: #6366f1;
   stroke-width: 3;
   transition: all 0.2s ease;
 }
 
 .vue-flow__edge:hover .vue-flow__edge-path {
-  stroke: #409eff;
+  stroke: #4f46e5;
   stroke-width: 4;
 }
 
 .vue-flow__edge.selected .vue-flow__edge-path {
-  stroke: #409eff;
+  stroke: #4f46e5;
   stroke-width: 4;
 }
 
 /* 连线动画效果 */
 .vue-flow__edge.animated .vue-flow__edge-path {
-  stroke-dasharray: 5;
-  animation: dash 0.5s linear infinite;
+  stroke-dasharray: 8;
+  animation: dash 0.8s linear infinite;
 }
 
 @keyframes dash {
   to {
-    stroke-dashoffset: -10;
+    stroke-dashoffset: -16;
   }
 }
 
-/* Handle样式优化 - 增大感应区域 */
+/* Handle样式优化 - 更大更明显 */
 .vue-flow__handle {
-  width: 16px !important;
-  height: 16px !important;
+  width: 14px !important;
+  height: 14px !important;
   border: 3px solid #fff !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border-radius: 50% !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   transition: all 0.2s ease;
+  cursor: crosshair;
 }
 
 .vue-flow__handle:hover {
-  width: 20px !important;
-  height: 20px !important;
+  width: 18px !important;
+  height: 18px !important;
   transform: scale(1.2);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.5);
 }
 
 .vue-flow__handle.connecting {
-  width: 20px !important;
-  height: 20px !important;
-  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.4);
+  width: 18px !important;
+  height: 18px !important;
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.6);
+  animation: pulse 1s ease infinite;
 }
 
 .vue-flow__handle.valid {
-  box-shadow: 0 4px 12px rgba(103, 194, 58, 0.5);
+  box-shadow: 0 4px 16px rgba(34, 197, 94, 0.6);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
 }
 
 /* 控制面板样式 */
 .vue-flow__controls {
   background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   border: none;
-  padding: 4px;
+  padding: 6px;
 }
 
 .vue-flow__controls-button {
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
   border: none;
-  background: #f5f7fa;
+  background: #f1f5f9;
   transition: all 0.2s ease;
 }
 
 .vue-flow__controls-button:hover {
-  background: #e6f0ff;
-  color: #409eff;
+  background: #e0e7ff;
+  color: #6366f1;
+}
+
+/* 连接线预览样式 */
+.vue-flow__connection-line {
+  stroke: #6366f1;
+  stroke-width: 3;
+  stroke-dasharray: 5;
 }
 
 /* 滚动条样式 */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c0c4cc;
-  border-radius: 3px;
+  background: #cbd5e1;
+  border-radius: 4px;
   transition: background 0.2s;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #909399;
+  background: #94a3b8;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f5f7fa;
-  border-radius: 3px;
+  background: #f1f5f9;
+  border-radius: 4px;
 }
 
 /* Element Plus 覆盖样式 */
 .el-drawer__header {
   margin-bottom: 0;
-  padding: 16px 20px;
-  border-bottom: 1px solid #e4e7ed;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .el-drawer__title {
   font-size: 16px;
   font-weight: 600;
+  color: #1e293b;
 }
 
 .el-drawer__body {
-  padding: 20px;
+  padding: 24px;
 }
 
 /* 动画效果 */

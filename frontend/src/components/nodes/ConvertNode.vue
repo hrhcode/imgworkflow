@@ -1,7 +1,7 @@
 <template>
   <div class="workflow-node convert-node">
     <div class="node-header">
-      <el-icon><Switch /></el-icon>
+      <el-icon><SwitchFilled /></el-icon>
       <span>格式转换</span>
     </div>
     <div class="node-content">
@@ -31,26 +31,26 @@ defineProps({
 <style scoped>
 .workflow-node {
   background: #fff;
-  border: 2px solid #e6a23c;
+  border: 2px solid #f59e0b;
   border-radius: 12px;
   min-width: 140px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
   transition: all 0.2s ease;
 }
 
 .workflow-node:hover {
-  box-shadow: 0 4px 20px rgba(230, 162, 60, 0.2);
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.25);
 }
 
 .node-header {
   display: flex;
   align-items: center;
   padding: 10px 14px;
-  background: linear-gradient(135deg, #e6a23c 0%, #f0c78a 100%);
+  background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
   color: #fff;
   border-radius: 10px 10px 0 0;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .node-header .el-icon {
@@ -65,29 +65,28 @@ defineProps({
 
 .format-badge {
   padding: 8px 20px;
-  background: linear-gradient(135deg, #fdf6ec 0%, #faecd8 100%);
-  color: #e6a23c;
-  border-radius: 6px;
-  font-weight: 600;
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  color: #d97706;
+  border-radius: 8px;
+  font-weight: 700;
   font-size: 14px;
+  border: 1px solid #fcd34d;
 }
 
-/* 增大Handle感应区域 */
 .handle-target,
 .handle-source {
-  width: 16px !important;
-  height: 16px !important;
-  background: #e6a23c !important;
+  width: 14px !important;
+  height: 14px !important;
+  background: #f59e0b !important;
   border: 3px solid #fff !important;
-  box-shadow: 0 2px 8px rgba(230, 162, 60, 0.4);
-  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
 }
 
 .handle-target:hover,
 .handle-source:hover {
-  width: 20px !important;
-  height: 20px !important;
-  background: #f0c78a !important;
-  box-shadow: 0 4px 12px rgba(230, 162, 60, 0.6);
+  width: 18px !important;
+  height: 18px !important;
+  background: #fbbf24 !important;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.6);
 }
 </style>

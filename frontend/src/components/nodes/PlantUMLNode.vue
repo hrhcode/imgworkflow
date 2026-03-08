@@ -30,26 +30,26 @@ defineProps({
 <style scoped>
 .workflow-node {
   background: #fff;
-  border: 2px solid #909399;
+  border: 2px solid #8b5cf6;
   border-radius: 12px;
   min-width: 160px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15);
   transition: all 0.2s ease;
 }
 
 .workflow-node:hover {
-  box-shadow: 0 4px 20px rgba(144, 147, 153, 0.2);
+  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.25);
 }
 
 .node-header {
   display: flex;
   align-items: center;
   padding: 10px 14px;
-  background: linear-gradient(135deg, #909399 0%, #b1b3b8 100%);
+  background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
   color: #fff;
   border-radius: 10px 10px 0 0;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .node-header .el-icon {
@@ -63,29 +63,28 @@ defineProps({
 .code-preview {
   font-family: 'Consolas', 'Monaco', monospace;
   font-size: 11px;
-  color: #606266;
-  background: linear-gradient(135deg, #f5f7fa 0%, #e9e9eb 100%);
+  color: #64748b;
+  background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
   padding: 10px;
   border-radius: 6px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  border: 1px solid #ddd6fe;
 }
 
-/* 增大Handle感应区域 */
 .handle-source {
-  width: 16px !important;
-  height: 16px !important;
-  background: #909399 !important;
+  width: 14px !important;
+  height: 14px !important;
+  background: #8b5cf6 !important;
   border: 3px solid #fff !important;
-  box-shadow: 0 2px 8px rgba(144, 147, 153, 0.4);
-  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4);
 }
 
 .handle-source:hover {
-  width: 20px !important;
-  height: 20px !important;
-  background: #b1b3b8 !important;
-  box-shadow: 0 4px 12px rgba(144, 147, 153, 0.6);
+  width: 18px !important;
+  height: 18px !important;
+  background: #a78bfa !important;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.6);
 }
 </style>
