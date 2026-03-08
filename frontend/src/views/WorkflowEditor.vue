@@ -22,6 +22,10 @@
           <el-icon><VideoPlay /></el-icon>
           执行
         </el-button>
+        <el-button type="success" @click="saveCurrentWorkflow">
+          <el-icon><Folder /></el-icon>
+          保存
+        </el-button>
         <el-button @click="showWorkflowManager = true">
           <el-icon><FolderOpened /></el-icon>
           工作流管理
@@ -69,7 +73,7 @@
                 @dragstart="onDragStart($event, nodeType)"
               >
                 <div class="node-icon" :style="{ background: nodeType.color }">
-                  <el-icon :size="20"><component :is="nodeType.icon" /></el-icon>
+                  <el-icon :size="20"><component :is="getIcon(nodeType.icon)" /></el-icon>
                 </div>
                 <div class="node-info">
                   <div class="node-label">{{ nodeType.label }}</div>
@@ -90,7 +94,7 @@
                 @dragstart="onDragStart($event, nodeType)"
               >
                 <div class="node-icon" :style="{ background: nodeType.color }">
-                  <el-icon :size="20"><component :is="nodeType.icon" /></el-icon>
+                  <el-icon :size="20"><component :is="getIcon(nodeType.icon)" /></el-icon>
                 </div>
                 <div class="node-info">
                   <div class="node-label">{{ nodeType.label }}</div>
@@ -111,7 +115,7 @@
                 @dragstart="onDragStart($event, nodeType)"
               >
                 <div class="node-icon" :style="{ background: nodeType.color }">
-                  <el-icon :size="20"><component :is="nodeType.icon" /></el-icon>
+                  <el-icon :size="20"><component :is="getIcon(nodeType.icon)" /></el-icon>
                 </div>
                 <div class="node-info">
                   <div class="node-label">{{ nodeType.label }}</div>
@@ -221,7 +225,7 @@
 /**
  * 工作流编辑器主页面
  */
-import { ref, reactive, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, onMounted, onUnmounted, computed } from 'vue'
 import { VueFlow, useVueFlow } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
@@ -230,8 +234,24 @@ import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/controls/dist/style.css'
 import { useWorkflowStore } from '@/stores/workflow'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import {
+  Upload,
+  Download,
+  Delete,
+  VideoPlay,
+  FolderOpened,
+  Document,
+  Menu,
+  Setting,
+  Plus,
+  Share,
+  DataLine,
+  SwitchFilled,
+  DocumentCopy,
+  Folder
+} from '@element-plus/icons-vue'
 
-const { addEdges, removeNodes, getSelectedNodes } = useVueFlow()
+const { addEdges, removeNodes, getSelectedNodes, project } = useVueFlow()
 
 // 节点组件
 import UploadNode from '@/components/nodes/UploadNode.vue'
@@ -264,11 +284,26 @@ const contextMenu = reactive({
   y: 0
 })
 
+// 图标映射
+const iconMap = {
+  Upload,
+  Download,
+  SwitchFilled,
+  DataLine,
+  Share,
+  DocumentCopy
+}
+
+// 获取图标组件
+function getIcon(iconName) {
+  return iconMap[iconName] || DocumentCopy
+}
+
 // 节点类型定义（分组）
 const imageNodes = ref([
   { type: 'upload', label: '图片上传', icon: 'Upload', color: '#409eff', desc: '上传图片文件' },
-  { type: 'compress', label: '图片压缩', icon: 'Compress', color: '#67c23a', desc: '压缩图片大小' },
-  { type: 'convert', label: '格式转换', icon: 'Switch', color: '#e6a23c', desc: '转换图片格式' }
+  { type: 'compress', label: '图片压缩', icon: 'DocumentCopy', color: '#67c23a', desc: '压缩图片大小' },
+  { type: 'convert', label: '格式转换', icon: 'SwitchFilled', color: '#e6a23c', desc: '转换图片格式' }
 ])
 
 const diagramNodes = ref([
@@ -317,18 +352,29 @@ function onDragStart(event, nodeType) {
 }
 
 /**
- * 拖拽放置
+ * 拖拽放置 - 优化位置计算
  */
 function onDrop(event) {
   const type = event.dataTransfer.getData('application/vueflow')
   if (!type) return
 
-  const canvasRect = event.target.closest('.canvas-container')?.getBoundingClientRect()
-  if (!canvasRect) return
+  // 使用VueFlow的project方法转换坐标
+  const bounds = event.target.closest('.vue-flow')?.getBoundingClientRect()
+  if (!bounds) return
+
+  // 计算已有节点的最右侧位置
+  let baseX = 50
+  let baseY = 150
+  
+  if (workflowStore.nodes.length > 0) {
+    const lastNode = workflowStore.nodes[workflowStore.nodes.length - 1]
+    baseX = lastNode.position.x + 220 // 节点宽度 + 间距
+    baseY = lastNode.position.y
+  }
 
   const position = {
-    x: event.clientX - canvasRect.left,
-    y: event.clientY - canvasRect.top
+    x: baseX,
+    y: baseY
   }
 
   const newNode = {
@@ -452,7 +498,104 @@ function executeWorkflow() {
     ElMessage.warning('请先添加节点')
     return
   }
+  
+  // 验证工作流
+  const validation = validateWorkflow()
+  if (!validation.valid) {
+    ElMessage.error(validation.message)
+    return
+  }
+  
   workflowStore.executeWorkflow()
+}
+
+/**
+ * 验证工作流是否合理
+ */
+function validateWorkflow() {
+  const nodes = workflowStore.nodes
+  const edges = workflowStore.edges
+  
+  // 检查是否有下载节点
+  const hasDownloadNode = nodes.some(n => n.type === 'download')
+  if (!hasDownloadNode) {
+    return {
+      valid: false,
+      message: '工作流必须包含下载节点才能输出结果'
+    }
+  }
+  
+  // 检查是否有数据源节点
+  const hasSourceNode = nodes.some(n => n.type === 'upload' || n.type === 'mermaid' || n.type === 'plantuml')
+  if (!hasSourceNode) {
+    return {
+      valid: false,
+      message: '工作流必须包含数据源节点（上传、Mermaid或PlantUML）'
+    }
+  }
+  
+  // 检查节点是否都已连接
+  for (const node of nodes) {
+    if (node.type !== 'upload' && node.type !== 'mermaid' && node.type !== 'plantuml') {
+      // 非源节点必须有输入连接
+      const hasInput = edges.some(e => e.target === node.id)
+      if (!hasInput) {
+        return {
+          valid: false,
+          message: `节点"${getNodeLabel(node.type)}"没有输入连接`
+        }
+      }
+    }
+    
+    if (node.type !== 'download') {
+      // 非终点节点必须有输出连接
+      const hasOutput = edges.some(e => e.source === node.id)
+      if (!hasOutput) {
+        return {
+          valid: false,
+          message: `节点"${getNodeLabel(node.type)}"没有输出连接`
+        }
+      }
+    }
+  }
+  
+  return { valid: true }
+}
+
+/**
+ * 获取节点标签
+ */
+function getNodeLabel(type) {
+  const labels = {
+    upload: '图片上传',
+    compress: '图片压缩',
+    convert: '格式转换',
+    plantuml: 'PlantUML',
+    mermaid: 'Mermaid',
+    download: '图片下载'
+  }
+  return labels[type] || type
+}
+
+/**
+ * 保存当前工作流
+ */
+function saveCurrentWorkflow() {
+  if (workflowStore.nodes.length === 0) {
+    ElMessage.warning('当前工作流为空，无法保存')
+    return
+  }
+  
+  ElMessageBox.prompt('请输入工作流名称', '保存工作流', {
+    confirmButtonText: '保存',
+    cancelButtonText: '取消',
+    inputValue: workflowStore.currentWorkflowName,
+    inputPattern: /\S+/,
+    inputErrorMessage: '工作流名称不能为空'
+  }).then(({ value }) => {
+    workflowStore.saveCurrentWorkflow(value)
+    ElMessage.success('工作流保存成功')
+  }).catch(() => {})
 }
 
 /**
