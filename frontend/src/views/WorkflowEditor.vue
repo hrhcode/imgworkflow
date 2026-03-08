@@ -783,10 +783,19 @@ function updateNodeIdCounter(nodes) {
   font-size: 13px;
   padding: 8px 14px;
   transition: all 0.2s ease;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toolbar-center .el-button-group {
+  display: inline-flex;
 }
 
 .toolbar-center .el-button-group .el-button {
   border-radius: 0;
+  margin: 0;
 }
 
 .toolbar-center .el-button-group .el-button:first-child {
@@ -832,13 +841,13 @@ function updateNodeIdCounter(nodes) {
 }
 
 .toolbar-center .save-btn {
-  background: #f59e0b;
-  border-color: #f59e0b;
+  background: #3b82f6;
+  border-color: #3b82f6;
 }
 
 .toolbar-center .save-btn:hover {
-  background: #d97706;
-  border-color: #d97706;
+  background: #2563eb;
+  border-color: #2563eb;
 }
 
 .toolbar-center .el-button--danger.is-plain {
