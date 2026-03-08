@@ -1,0 +1,43 @@
+# 编译输出
+target/
+build/
+dist/
+out/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 前端构建
+frontend/dist/
+
+# 日志
+logs/
+*.log
+
+# 操作系统
+.DS_Store
+Thumbs.db
+
+# 临时文件
+*.tmp
+*.temp
+*.bak
+
+# 上传文件目录（开发时忽略，生产环境可配置）
+uploads/
+
+# 敏感配置
+application-local.yml
+application-local.properties
+.env
+.env.local
