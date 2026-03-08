@@ -14,7 +14,7 @@
           @click="selectTemplate(template)"
         >
           <div class="template-icon">
-            <el-icon :size="32"><component :is="template.icon" /></el-icon>
+            <el-icon :size="32"><component :is="getIcon(template.icon)" /></el-icon>
           </div>
           <div class="template-info">
             <div class="template-name">{{ template.name }}</div>
@@ -43,6 +43,34 @@
  * 工作流模板选择面板
  */
 import { ref, watch } from 'vue'
+import {
+  ArrowRight,
+  Upload,
+  Download,
+  SwitchFilled,
+  Share,
+  DataLine,
+  DocumentCopy
+} from '@element-plus/icons-vue'
+
+/**
+ * 图标映射表
+ */
+const iconMap = {
+  Upload,
+  Download,
+  Switch: SwitchFilled,
+  Share,
+  DataLine,
+  Compress: DocumentCopy
+}
+
+/**
+ * 获取图标组件
+ */
+function getIcon(iconName) {
+  return iconMap[iconName] || DocumentCopy
+}
 
 const props = defineProps({
   modelValue: {
