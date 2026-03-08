@@ -23,11 +23,105 @@ export const useWorkflowStore = defineStore('workflow', () => {
   const executionProgress = ref(0)
   // 执行日志
   const executionLogs = ref([])
+  // 当前工作流名称
+  const currentWorkflowName = ref('未命名工作流')
+  // 已保存的工作流列表
+  const savedWorkflows = ref([])
 
   // 获取当前选中的节点
   const selectedNode = computed(() => {
     return nodes.value.find(node => node.id === selectedNodeId.value)
   })
+
+  /**
+   * 加载已保存的工作流列表
+   */
+  function loadSavedWorkflows() {
+    const saved = localStorage.getItem('workflows')
+    if (saved) {
+      savedWorkflows.value = JSON.parse(saved)
+    }
+  }
+
+  /**
+   * 保存工作流列表到本地存储
+   */
+  function saveWorkflowsToStorage() {
+    localStorage.setItem('workflows', JSON.stringify(savedWorkflows.value))
+  }
+
+  /**
+   * 保存当前工作流
+   */
+  function saveCurrentWorkflow(name) {
+    const workflowName = name || currentWorkflowName.value
+    const workflow = {
+      id: Date.now().toString(),
+      name: workflowName,
+      nodes: nodes.value,
+      edges: edges.value,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }
+    
+    const existingIndex = savedWorkflows.value.findIndex(w => w.name === workflowName)
+    if (existingIndex > -1) {
+      workflow.id = savedWorkflows.value[existingIndex].id
+      workflow.createdAt = savedWorkflows.value[existingIndex].createdAt
+      savedWorkflows.value[existingIndex] = workflow
+    } else {
+      savedWorkflows.value.push(workflow)
+    }
+    
+    currentWorkflowName.value = workflowName
+    saveWorkflowsToStorage()
+    return workflow
+  }
+
+  /**
+   * 加载工作流
+   */
+  function loadWorkflow(workflowId) {
+    const workflow = savedWorkflows.value.find(w => w.id === workflowId)
+    if (workflow) {
+      nodes.value = workflow.nodes || []
+      edges.value = workflow.edges || []
+      currentWorkflowName.value = workflow.name
+      selectedNodeId.value = null
+      return true
+    }
+    return false
+  }
+
+  /**
+   * 删除工作流
+   */
+  function deleteWorkflow(workflowId) {
+    const index = savedWorkflows.value.findIndex(w => w.id === workflowId)
+    if (index > -1) {
+      savedWorkflows.value.splice(index, 1)
+      saveWorkflowsToStorage()
+      return true
+    }
+    return false
+  }
+
+  /**
+   * 重命名工作流
+   */
+  function renameWorkflow(workflowId, newName) {
+    const workflow = savedWorkflows.value.find(w => w.id === workflowId)
+    if (workflow) {
+      workflow.name = newName
+      workflow.updatedAt = new Date().toISOString()
+      saveWorkflowsToStorage()
+      if (currentWorkflowName.value === workflow.name) {
+        currentWorkflowName.value = newName
+      }
+      return true
+    }
+    return false
+  }
 
   /**
    * 添加节点
@@ -361,6 +455,13 @@ export const useWorkflowStore = defineStore('workflow', () => {
     isExecuting,
     executionProgress,
     executionLogs,
+    currentWorkflowName,
+    savedWorkflows,
+    loadSavedWorkflows,
+    saveCurrentWorkflow,
+    loadWorkflow,
+    deleteWorkflow,
+    renameWorkflow,
     addNode,
     removeNode,
     updateNodeData,

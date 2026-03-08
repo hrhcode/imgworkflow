@@ -14,8 +14,8 @@
         <span class="value">{{ data.width || 'auto' }} x {{ data.height || 'auto' }}</span>
       </div>
     </div>
-    <Handle type="target" :position="Position.Left" />
-    <Handle type="source" :position="Position.Right" />
+    <Handle type="target" :position="Position.Left" class="handle-target" />
+    <Handle type="source" :position="Position.Right" class="handle-source" />
   </div>
 </template>
 
@@ -37,17 +37,23 @@ defineProps({
 .workflow-node {
   background: #fff;
   border: 2px solid #67c23a;
-  border-radius: 8px;
+  border-radius: 12px;
   min-width: 160px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+}
+
+.workflow-node:hover {
+  box-shadow: 0 4px 20px rgba(103, 194, 58, 0.2);
 }
 
 .node-header {
   display: flex;
   align-items: center;
-  padding: 8px 12px;
-  background: #67c23a;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, #67c23a 0%, #85ce61 100%);
   color: #fff;
-  border-radius: 6px 6px 0 0;
+  border-radius: 10px 10px 0 0;
   font-size: 14px;
   font-weight: 500;
 }
@@ -57,7 +63,7 @@ defineProps({
 }
 
 .node-content {
-  padding: 12px;
+  padding: 12px 14px;
 }
 
 .info-item {
@@ -74,5 +80,24 @@ defineProps({
 .info-item .value {
   color: #333;
   font-weight: 500;
+}
+
+/* 增大Handle感应区域 */
+.handle-target,
+.handle-source {
+  width: 16px !important;
+  height: 16px !important;
+  background: #67c23a !important;
+  border: 3px solid #fff !important;
+  box-shadow: 0 2px 8px rgba(103, 194, 58, 0.4);
+  transition: all 0.2s ease;
+}
+
+.handle-target:hover,
+.handle-source:hover {
+  width: 20px !important;
+  height: 20px !important;
+  background: #85ce61 !important;
+  box-shadow: 0 4px 12px rgba(103, 194, 58, 0.6);
 }
 </style>
