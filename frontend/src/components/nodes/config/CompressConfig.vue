@@ -29,25 +29,9 @@
           </el-radio-button>
         </el-radio-group>
       </el-form-item>
-      
-      <el-divider>
-        <el-checkbox v-model="showAdvanced" label="高级设置" />
-      </el-divider>
-      
-      <template v-if="showAdvanced">
-        <el-form-item label="压缩质量">
-          <el-slider v-model="quality" :min="1" :max="100" show-input />
-        </el-form-item>
-        <el-form-item label="最大宽度">
-          <el-input-number v-model="width" :min="1" :max="10000" placeholder="不限制" clearable />
-        </el-form-item>
-        <el-form-item label="最大高度">
-          <el-input-number v-model="height" :min="1" :max="10000" placeholder="不限制" clearable />
-        </el-form-item>
-      </template>
     </el-form>
     
-    <div class="level-info" v-if="!showAdvanced">
+    <div class="level-info">
       <el-tag :type="getLevelTagType(compressLevel)" size="small">
         {{ getLevelDescription(compressLevel) }}
       </el-tag>
@@ -59,7 +43,7 @@
 /**
  * 图片压缩节点配置面板
  */
-import { ref, watch, computed } from 'vue'
+import { ref, watch } from 'vue'
 
 const props = defineProps({
   node: {
@@ -71,19 +55,15 @@ const props = defineProps({
 const emit = defineEmits(['update'])
 
 const compressLevel = ref('normal')
-const quality = ref(80)
-const width = ref(null)
-const height = ref(null)
-const showAdvanced = ref(false)
 
 /**
  * 压缩等级配置映射
  */
 const levelConfig = {
-  light: { quality: 92, maxSizeRatio: 0.95, desc: '轻度压缩，保持最佳画质，体积略减' },
-  normal: { quality: 80, maxSizeRatio: 0.7, desc: '普通压缩，画质与体积平衡' },
-  strong: { quality: 60, maxSizeRatio: 0.4, desc: '强力压缩，画质略有损失，体积显著减小' },
-  extreme: { quality: 40, maxSizeRatio: 0.2, desc: '极强压缩，画质损失较大，体积最小' }
+  light: { quality: 85, maxSizeRatio: 0.90, desc: '轻度压缩，保持较佳画质，体积略减' },
+  normal: { quality: 60, maxSizeRatio: 0.60, desc: '普通压缩，画质与体积平衡' },
+  strong: { quality: 40, maxSizeRatio: 0.35, desc: '强力压缩，画质有损失，体积显著减小' },
+  extreme: { quality: 20, maxSizeRatio: 0.15, desc: '极强压缩，画质损失较大，体积最小' }
 }
 
 /**
@@ -107,26 +87,17 @@ function getLevelDescription(level) {
 }
 
 watch(() => props.node.data, (data) => {
-  if (data) {
-    if (data.compressLevel) {
-      compressLevel.value = data.compressLevel
-    }
-    quality.value = data.quality || 80
-    width.value = data.width || null
-    height.value = data.height || null
-    showAdvanced.value = data.showAdvanced || false
+  if (data && data.compressLevel) {
+    compressLevel.value = data.compressLevel
   }
 }, { immediate: true })
 
-watch([compressLevel, quality, width, height, showAdvanced], () => {
+watch(compressLevel, () => {
   const config = levelConfig[compressLevel.value]
   emit('update', {
     compressLevel: compressLevel.value,
-    quality: showAdvanced.value ? quality.value : config.quality,
-    maxSizeRatio: config.maxSizeRatio,
-    width: width.value,
-    height: height.value,
-    showAdvanced: showAdvanced.value
+    quality: config.quality,
+    maxSizeRatio: config.maxSizeRatio
   })
 })
 </script>
@@ -138,25 +109,6 @@ watch([compressLevel, quality, width, height, showAdvanced], () => {
 
 :deep(.el-form-item) {
   margin-bottom: 16px;
-}
-
-:deep(.el-slider) {
-  margin-left: 8px;
-  margin-right: 8px;
-}
-
-:deep(.el-divider__text) {
-  background: #fff;
-  padding: 0 12px;
-}
-
-:deep(.el-divider) {
-  margin: 20px 0;
-}
-
-:deep(.el-checkbox__label) {
-  font-size: 12px;
-  color: #909399;
 }
 
 .level-group {

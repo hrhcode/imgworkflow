@@ -481,7 +481,7 @@ function cleanupExecution() {
           for (let i = 0; i < inputData.length; i++) {
             checkAborted()
             const file = inputData[i]
-            const ext = data.format || 'png'
+            const ext = getFileExtension(file)
             downloadFile(file, `image_${i + 1}.${ext}`)
           }
           addLog(`已下载 ${inputData.length} 张图片`, 'success')
@@ -489,7 +489,7 @@ function cleanupExecution() {
           const prefix = data.filePrefix || 'images'
           const files = inputData.map((file, i) => ({
             blob: file,
-            name: `${prefix}_${i + 1}.${data.format || 'png'}`
+            name: `${prefix}_${i + 1}.${getFileExtension(file)}`
           }))
           checkAborted()
           await downloadAsZip(files, `${prefix}.zip`)
@@ -500,6 +500,27 @@ function cleanupExecution() {
       default:
         return inputData
     }
+  }
+
+  /**
+   * 获取文件扩展名
+   */
+  function getFileExtension(file) {
+    if (file.name) {
+      const match = file.name.match(/\.(\w+)$/)
+      if (match) return match[1].toLowerCase()
+    }
+    if (file.type) {
+      const typeMap = {
+        'image/png': 'png',
+        'image/jpeg': 'jpg',
+        'image/webp': 'webp',
+        'image/gif': 'gif',
+        'image/svg+xml': 'svg'
+      }
+      return typeMap[file.type] || 'png'
+    }
+    return 'png'
   }
 
   /**

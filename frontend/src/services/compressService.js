@@ -6,26 +6,26 @@ import imageCompression from 'browser-image-compression'
 export const COMPRESS_LEVELS = {
   light: {
     name: '轻度',
-    quality: 0.92,
-    maxSizeRatio: 0.95,
-    desc: '轻度压缩，保持最佳画质，体积略减'
+    quality: 0.85,
+    maxSizeRatio: 0.90,
+    desc: '轻度压缩，保持较佳画质，体积略减'
   },
   normal: {
     name: '普通',
-    quality: 0.80,
-    maxSizeRatio: 0.70,
+    quality: 0.60,
+    maxSizeRatio: 0.60,
     desc: '普通压缩，画质与体积平衡'
   },
   strong: {
     name: '强力',
-    quality: 0.60,
-    maxSizeRatio: 0.40,
-    desc: '强力压缩，画质略有损失，体积显著减小'
+    quality: 0.40,
+    maxSizeRatio: 0.35,
+    desc: '强力压缩，画质有损失，体积显著减小'
   },
   extreme: {
     name: '极强',
-    quality: 0.40,
-    maxSizeRatio: 0.20,
+    quality: 0.20,
+    maxSizeRatio: 0.15,
     desc: '极强压缩，画质损失较大，体积最小'
   }
 }

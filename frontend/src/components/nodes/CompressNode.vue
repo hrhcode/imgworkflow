@@ -8,14 +8,6 @@
       <div class="level-badge" :class="levelClass">
         {{ levelName }}
       </div>
-      <div class="info-item" v-if="data.showAdvanced">
-        <span class="label">质量：</span>
-        <span class="value">{{ data.quality }}%</span>
-      </div>
-      <div class="info-item" v-if="data.width || data.height">
-        <span class="label">尺寸：</span>
-        <span class="value">{{ data.width || 'auto' }} x {{ data.height || 'auto' }}</span>
-      </div>
     </div>
     <Handle type="target" :position="Position.Left" class="handle-target" />
     <Handle type="source" :position="Position.Right" class="handle-source" />
@@ -91,7 +83,6 @@ const levelClass = computed(() => {
   font-size: 12px;
   font-weight: 600;
   text-align: center;
-  margin-bottom: 8px;
 }
 
 .level-light {
@@ -112,22 +103,6 @@ const levelClass = computed(() => {
 .level-extreme {
   background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
   color: #991b1b;
-}
-
-.info-item {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 4px;
-  font-size: 12px;
-}
-
-.info-item .label {
-  color: #64748b;
-}
-
-.info-item .value {
-  color: #1e293b;
-  font-weight: 600;
 }
 
 .handle-target,

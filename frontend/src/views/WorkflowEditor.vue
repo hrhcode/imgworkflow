@@ -423,11 +423,11 @@ function onDrop(event) {
 function getDefaultNodeData(type) {
   const defaults = {
     upload: { files: [], fileIds: [] },
-    compress: { compressLevel: 'normal', quality: 80, maxSizeRatio: 0.7, width: null, height: null, showAdvanced: false },
+    compress: { compressLevel: 'normal', quality: 60, maxSizeRatio: 0.6 },
     convert: { format: 'png', jpgQuality: 92 },
     plantuml: { code: '@startuml\nalice -> bob\n@enduml' },
     mermaid: { code: 'graph TD\n    A[开始] --> B[结束]', outputFormat: 'png' },
-    download: { downloadMode: 'batch', filePrefix: 'images', format: 'png' }
+    download: { downloadMode: 'batch', filePrefix: 'images' }
   }
   return { ...defaults[type] }
 }
