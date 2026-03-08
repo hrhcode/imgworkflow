@@ -218,7 +218,11 @@
       </div>
 
       <!-- 右侧配置面板 -->
-      <div class="config-panel" v-if="workflowStore.selectedNode">
+      <div 
+        class="config-panel" 
+        :class="{ 'wide': isDiagramNode(workflowStore.selectedNode?.type) }"
+        v-if="workflowStore.selectedNode"
+      >
         <div class="panel-header">
           <el-icon><Setting /></el-icon>
           <span>节点配置</span>
@@ -467,6 +471,13 @@ function getConfigPanel(type) {
 }
 
 /**
+ * 判断是否为文本绘图节点
+ */
+function isDiagramNode(type) {
+  return type === 'plantuml' || type === 'mermaid'
+}
+
+/**
  * 拖拽开始
  */
 function onDragStart(event, nodeType) {
@@ -509,7 +520,7 @@ function getDefaultNodeData(type) {
     upload: { files: [], fileIds: [] },
     compress: { compressLevel: 'normal', quality: 60, maxSizeRatio: 0.6 },
     convert: { format: 'png', jpgQuality: 92 },
-    plantuml: { code: '@startuml\nalice -> bob\n@enduml' },
+    plantuml: { code: '@startuml\nalice -> bob\n@enduml', outputFormat: 'png' },
     mermaid: { code: 'graph TD\n    A[开始] --> B[结束]', outputFormat: 'png' },
     download: { downloadMode: 'batch', filePrefix: 'images' }
   }
@@ -1276,6 +1287,12 @@ function onSelectTemplate(template) {
   border-left: 1px solid var(--border-primary);
   display: flex;
   flex-direction: column;
+  transition: width 0.3s ease;
+}
+
+.config-panel.wide {
+  width: 680px;
+  max-width: 50vw;
 }
 
 .config-panel .panel-header {
@@ -1287,7 +1304,9 @@ function onSelectTemplate(template) {
 .config-content {
   flex: 1;
   overflow-y: auto;
-  padding: 20px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
 }
 
 .delete-btn {

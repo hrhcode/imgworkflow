@@ -518,7 +518,7 @@ function cleanupExecution() {
           return []
         }
         try {
-          const blob = await getPlantUMLBlob(data.code, 'png')
+          const blob = await getPlantUMLBlob(data.code, data.outputFormat || 'png')
           checkAborted()
           addLog('PlantUML渲染成功', 'success')
           return [blob]
@@ -556,7 +556,8 @@ function cleanupExecution() {
             checkAborted()
             const file = inputData[i]
             const ext = getFileExtension(file)
-            downloadFile(file, `image_${i + 1}.${ext}`)
+            const fileName = file.name || `image_${i + 1}.${ext}`
+            downloadFile(file, fileName)
           }
           addLog(`已下载 ${inputData.length} 张图片`, 'success')
         } else {

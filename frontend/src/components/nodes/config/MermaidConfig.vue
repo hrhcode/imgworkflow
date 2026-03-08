@@ -1,25 +1,42 @@
 <template>
   <div class="mermaid-config">
-    <el-form label-position="top" size="small">
-      <el-form-item label="Mermaid代码">
-        <el-input
-          v-model="code"
-          type="textarea"
-          :rows="10"
-          placeholder="输入Mermaid代码"
-        />
-      </el-form-item>
-      <el-form-item label="输出格式">
-        <el-select v-model="outputFormat">
-          <el-option label="PNG" value="png" />
-          <el-option label="SVG" value="svg" />
-        </el-select>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="preview" :loading="loading">预览</el-button>
-      </el-form-item>
-    </el-form>
-    <div class="preview-area" v-if="previewSvg" v-html="previewSvg"></div>
+    <div class="config-layout">
+      <div class="editor-panel">
+        <div class="panel-header">
+          <span class="panel-title">代码编辑</span>
+          <div class="header-actions">
+            <el-select v-model="outputFormat" size="small" class="format-select">
+              <el-option label="PNG" value="png" />
+              <el-option label="SVG" value="svg" />
+            </el-select>
+            <el-button type="primary" size="small" @click="preview" :loading="loading">
+              预览
+            </el-button>
+          </div>
+        </div>
+        <div class="editor-wrapper">
+          <el-input
+            v-model="code"
+            type="textarea"
+            :rows="20"
+            placeholder="输入Mermaid代码"
+            class="code-editor"
+          />
+        </div>
+      </div>
+      <div class="preview-panel">
+        <div class="panel-header">
+          <span class="panel-title">预览结果</span>
+        </div>
+        <div class="preview-wrapper">
+          <div class="preview-area" v-if="previewSvg" v-html="previewSvg"></div>
+          <div class="preview-placeholder" v-else>
+            <el-icon :size="48"><Document /></el-icon>
+            <p>点击"预览"按钮查看渲染结果</p>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="help-text">
       <el-link type="primary" href="https://mermaid.js.org/intro/" target="_blank">
         Mermaid语法帮助
@@ -35,6 +52,7 @@
 import { ref, watch } from 'vue'
 import { renderMermaid } from '@/services/mermaidService'
 import { ElMessage } from 'element-plus'
+import { Document } from '@element-plus/icons-vue'
 
 const props = defineProps({
   node: {
@@ -85,53 +103,140 @@ async function preview() {
 <style scoped>
 .mermaid-config {
   padding: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
-:deep(.el-textarea__inner) {
-  font-family: monospace;
-  font-size: 12px;
+.config-layout {
+  display: flex;
+  gap: 16px;
+  flex: 1;
+  min-height: 0;
+}
+
+.editor-panel,
+.preview-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
   background: var(--bg-secondary);
+  border-radius: 8px 8px 0 0;
+  border: 1px solid var(--border-primary);
+  border-bottom: none;
+}
+
+.panel-title {
+  font-size: 13px;
+  font-weight: 500;
   color: var(--text-primary);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.format-select {
+  width: 80px;
+}
+
+:deep(.format-select .el-input__wrapper) {
+  background: var(--bg-primary);
   border-color: var(--border-primary);
 }
 
-:deep(.el-textarea__inner:focus) {
-  border-color: var(--border-focus);
+:deep(.format-select .el-input__inner) {
+  color: var(--text-primary);
 }
 
-:deep(.el-select) {
-  width: 100%;
+.editor-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-primary);
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
 }
 
-:deep(.el-select .el-input__wrapper) {
+.preview-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-primary);
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
   background: var(--bg-secondary);
-  border-color: var(--border-primary);
 }
 
-:deep(.el-select .el-input__inner) {
-  color: var(--text-primary);
+.code-editor {
+  flex: 1;
 }
 
-:deep(.el-form-item__label) {
+:deep(.code-editor .el-textarea) {
+  height: 100%;
+}
+
+:deep(.code-editor .el-textarea__inner) {
+  height: 100% !important;
+  min-height: 400px !important;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  background: var(--bg-secondary);
   color: var(--text-primary);
+  border: none;
+  border-radius: 0 0 8px 8px;
+  resize: none;
+  padding: 12px;
+}
+
+:deep(.code-editor .el-textarea__inner:focus) {
+  border: none;
+  box-shadow: none;
 }
 
 .preview-area {
-  margin-top: 12px;
-  text-align: center;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
   overflow: auto;
-  padding: 12px;
-  background: var(--bg-secondary);
-  border-radius: 8px;
-  border: 1px solid var(--border-primary);
 }
 
 .preview-area :deep(svg) {
   max-width: 100%;
+  max-height: 100%;
+}
+
+.preview-placeholder {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  gap: 12px;
+}
+
+.preview-placeholder p {
+  margin: 0;
+  font-size: 13px;
 }
 
 .help-text {
   margin-top: 12px;
   text-align: center;
+  flex-shrink: 0;
 }
 </style>
