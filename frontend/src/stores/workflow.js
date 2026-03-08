@@ -27,6 +27,8 @@ export const useWorkflowStore = defineStore('workflow', () => {
   const currentWorkflowName = ref('未命名工作流')
   // 已保存的工作流列表
   const savedWorkflows = ref([])
+  // AbortController 用于取消执行
+  let abortController = null
 
   // 获取当前选中的节点
   const selectedNode = computed(() => {
@@ -265,83 +267,134 @@ export const useWorkflowStore = defineStore('workflow', () => {
   }
 
   /**
-   * 执行工作流
-   */
-  async function executeWorkflow() {
-    if (isExecuting.value) return
-    
-    isExecuting.value = true
-    executionProgress.value = 0
-    executionLogs.value = []
-    
-    addLog('开始执行工作流', 'info')
-    
-    const order = getExecutionOrder()
-    const total = order.length
-    let completed = 0
-    
-    // 存储每个节点的输出
-    const nodeOutputs = new Map()
-    
-    try {
-      for (const nodeId of order) {
-        const node = nodes.value.find(n => n.id === nodeId)
-        if (!node) continue
-        
-        addLog(`执行节点: ${getNodeLabel(node.type)}`, 'info')
-        
-        // 获取输入数据
-        const inputNodes = getInputNodes(nodeId)
-        let inputData = []
-        
-        if (inputNodes.length > 0) {
-          for (const inputNode of inputNodes) {
-            const output = nodeOutputs.get(inputNode.id)
-            if (output) {
-              inputData = inputData.concat(output)
-            }
-          }
-        }
-        
-        // 执行节点处理
-        const output = await executeNode(node, inputData)
-        nodeOutputs.set(nodeId, output)
-        
-        completed++
-        executionProgress.value = Math.round((completed / total) * 100)
-        
-        addLog(`节点 ${getNodeLabel(node.type)} 执行完成`, 'success')
+ * 执行工作流
+ */
+async function executeWorkflow() {
+  if (isExecuting.value) return
+  
+  // 创建新的 AbortController
+  abortController = new AbortController()
+  const signal = abortController.signal
+  
+  isExecuting.value = true
+  executionProgress.value = 0
+  executionLogs.value = []
+  
+  addLog('开始执行工作流', 'info')
+  
+  const order = getExecutionOrder()
+  const total = order.length
+  let completed = 0
+  
+  // 存储每个节点的输出
+  const nodeOutputs = new Map()
+  
+  try {
+    for (const nodeId of order) {
+      // 检查是否已取消
+      if (signal.aborted) {
+        throw new Error('执行已被取消')
       }
       
-      addLog('工作流执行完成', 'success')
-      ElMessage.success('工作流执行完成')
-    } catch (error) {
+      const node = nodes.value.find(n => n.id === nodeId)
+      if (!node) continue
+      
+      addLog(`执行节点: ${getNodeLabel(node.type)}`, 'info')
+      
+      // 获取输入数据
+      const inputNodes = getInputNodes(nodeId)
+      let inputData = []
+      
+      if (inputNodes.length > 0) {
+        for (const inputNode of inputNodes) {
+          const output = nodeOutputs.get(inputNode.id)
+          if (output) {
+            inputData = inputData.concat(output)
+          }
+        }
+      }
+      
+      // 执行节点处理，传入 signal
+      const output = await executeNode(node, inputData, signal)
+      nodeOutputs.set(nodeId, output)
+      
+      completed++
+      executionProgress.value = Math.round((completed / total) * 100)
+      
+      addLog(`节点 ${getNodeLabel(node.type)} 执行完成`, 'success')
+    }
+    
+    addLog('工作流执行完成', 'success')
+    ElMessage.success('工作流执行完成')
+  } catch (error) {
+    if (error.message === '执行已被取消' || error.name === 'AbortError') {
+      addLog('工作流执行已终止', 'warning')
+      ElMessage.warning('工作流执行已终止')
+    } else {
       addLog(`执行失败: ${error.message}`, 'error')
       ElMessage.error('工作流执行失败: ' + error.message)
-    } finally {
-      isExecuting.value = false
     }
+  } finally {
+    isExecuting.value = false
+    abortController = null
   }
+}
+
+/**
+ * 终止工作流执行
+ */
+function stopExecution() {
+  if (!isExecuting.value || !abortController) {
+    return
+  }
+  
+  addLog('正在终止工作流执行...', 'warning')
+  abortController.abort()
+}
+
+/**
+ * 清理执行产物（保留用于兼容）
+ */
+function cleanupExecution() {
+  isExecuting.value = false
+  executionProgress.value = 0
+  addLog('已清理执行产物', 'info')
+  ElMessage.warning('工作流执行已终止')
+}
 
   /**
    * 执行单个节点
    */
-  async function executeNode(node, inputData) {
+  async function executeNode(node, inputData, signal) {
     const type = node.type
     const data = node.data || {}
+    
+    /**
+     * 检查是否已取消，如果取消则抛出错误
+     */
+    const checkAborted = () => {
+      if (signal && signal.aborted) {
+        const error = new Error('执行已被取消')
+        error.name = 'AbortError'
+        throw error
+      }
+    }
     
     switch (type) {
       case 'upload':
         // 上传节点：返回存储的文件
+        checkAborted()
         return data.files || []
       
       case 'compress':
+        checkAborted()
         if (inputData.length === 0) {
           addLog('压缩节点没有输入数据', 'warning')
           return []
         }
         const compressedImages = []
         for (const file of inputData) {
+          checkAborted()
           try {
             const compressed = await compressImage(file, {
               quality: (data.quality || 80) / 100,
@@ -349,68 +402,82 @@ export const useWorkflowStore = defineStore('workflow', () => {
               maxHeight: data.height,
               keepAspectRatio: data.keepAspectRatio !== false
             })
+            checkAborted()
             compressedImages.push(compressed)
           } catch (error) {
+            if (error.name === 'AbortError') throw error
             addLog(`压缩图片失败: ${error.message}`, 'error')
           }
         }
         return compressedImages
       
       case 'convert':
+        checkAborted()
         if (inputData.length === 0) {
           addLog('格式转换节点没有输入数据', 'warning')
           return []
         }
         const convertedImages = []
         for (const file of inputData) {
+          checkAborted()
           try {
             const converted = await convertImageFormat(
               file, 
               data.format || 'png',
               (data.jpgQuality || 92) / 100
             )
+            checkAborted()
             convertedImages.push(converted)
           } catch (error) {
+            if (error.name === 'AbortError') throw error
             addLog(`转换图片失败: ${error.message}`, 'error')
           }
         }
         return convertedImages
       
       case 'plantuml':
+        checkAborted()
         if (!data.code) {
           addLog('PlantUML节点没有配置代码', 'warning')
           return []
         }
         try {
           const blob = await getPlantUMLBlob(data.code, 'png')
+          checkAborted()
           addLog('PlantUML渲染成功', 'success')
           return [blob]
         } catch (error) {
+          if (error.name === 'AbortError') throw error
           addLog(`PlantUML渲染失败: ${error.message}`, 'error')
           return []
         }
       
       case 'mermaid':
+        checkAborted()
         if (!data.code) {
           addLog('Mermaid节点没有配置代码', 'warning')
           return []
         }
         try {
           const blob = await exportMermaidToImage(data.code, data.outputFormat || 'png')
+          checkAborted()
           addLog('Mermaid渲染成功', 'success')
           return [blob]
         } catch (error) {
+          if (error.name === 'AbortError') throw error
           addLog(`Mermaid渲染失败: ${error.message}`, 'error')
           return []
         }
       
       case 'download':
+        checkAborted()
         if (inputData.length === 0) {
           addLog('下载节点没有输入数据', 'warning')
           return []
         }
         if (data.downloadMode === 'single') {
           for (let i = 0; i < inputData.length; i++) {
+            checkAborted()
             const file = inputData[i]
             const ext = data.format || 'png'
             downloadFile(file, `image_${i + 1}.${ext}`)
@@ -422,6 +489,7 @@ export const useWorkflowStore = defineStore('workflow', () => {
             blob: file,
             name: `${prefix}_${i + 1}.${data.format || 'png'}`
           }))
+          checkAborted()
           await downloadAsZip(files, `${prefix}.zip`)
           addLog(`已打包下载 ${inputData.length} 张图片`, 'success')
         }
@@ -472,6 +540,7 @@ export const useWorkflowStore = defineStore('workflow', () => {
     exportWorkflow,
     importWorkflow,
     executeWorkflow,
+    stopExecution,
     addLog
   }
 })

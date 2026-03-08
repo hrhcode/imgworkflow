@@ -19,11 +19,23 @@
         </div>
         
         <el-button-group class="action-group">
-          <el-button type="primary" @click="executeWorkflow" :loading="workflowStore.isExecuting">
+          <el-button 
+            v-if="!workflowStore.isExecuting"
+            type="success" 
+            @click="executeWorkflow"
+          >
             <el-icon><VideoPlay /></el-icon>
             <span class="btn-text">执行</span>
           </el-button>
-          <el-button type="success" @click="saveCurrentWorkflow">
+          <el-button 
+            v-else
+            type="danger" 
+            @click="stopExecution"
+          >
+            <el-icon><VideoPause /></el-icon>
+            <span class="btn-text">终止</span>
+          </el-button>
+          <el-button type="primary" class="save-btn" @click="saveCurrentWorkflow">
             <el-icon><Folder /></el-icon>
             <span class="btn-text">保存</span>
           </el-button>
@@ -174,7 +186,7 @@
           <template #node-download="{ data }">
             <DownloadNode :data="data" />
           </template>
-          <Background :gap="20" :size="1" />
+          <Background :variant="BackgroundVariant.Lines" :gap="24" :size="0.5" :color="'#cbd5e1'" />
           <Controls />
         </VueFlow>
         
@@ -241,7 +253,7 @@
  */
 import { ref, reactive, onMounted, onUnmounted, computed } from 'vue'
 import { VueFlow, useVueFlow } from '@vue-flow/core'
-import { Background } from '@vue-flow/background'
+import { Background, BackgroundVariant } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
@@ -253,6 +265,7 @@ import {
   Download,
   Delete,
   VideoPlay,
+  VideoPause,
   FolderOpened,
   Document,
   Menu,
@@ -527,6 +540,13 @@ function executeWorkflow() {
 }
 
 /**
+ * 终止工作流执行
+ */
+function stopExecution() {
+  workflowStore.stopExecution()
+}
+
+/**
  * 验证工作流是否合理
  */
 function validateWorkflow() {
@@ -777,16 +797,6 @@ function updateNodeIdCounter(nodes) {
   border-radius: 0 6px 6px 0;
 }
 
-.toolbar-center .el-button--primary {
-  background: #6366f1;
-  border-color: #6366f1;
-}
-
-.toolbar-center .el-button--primary:hover {
-  background: #4f46e5;
-  border-color: #4f46e5;
-}
-
 .toolbar-center .el-button--success {
   background: #10b981;
   border-color: #10b981;
@@ -795,6 +805,40 @@ function updateNodeIdCounter(nodes) {
 .toolbar-center .el-button--success:hover {
   background: #059669;
   border-color: #059669;
+}
+
+.toolbar-center .el-button--danger {
+  background: #ef4444;
+  border-color: #ef4444;
+}
+
+.toolbar-center .el-button--danger:hover {
+  background: #dc2626;
+  border-color: #dc2626;
+}
+
+/* 只有执行中的终止按钮才有脉冲动画 */
+.toolbar-center .action-group .el-button--danger {
+  animation: pulse-danger 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-danger {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+  }
+}
+
+.toolbar-center .save-btn {
+  background: #f59e0b;
+  border-color: #f59e0b;
+}
+
+.toolbar-center .save-btn:hover {
+  background: #d97706;
+  border-color: #d97706;
 }
 
 .toolbar-center .el-button--danger.is-plain {
